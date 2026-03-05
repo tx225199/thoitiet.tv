@@ -1,0 +1,139 @@
+variables:
+  PROJECT_NAME: "XSKT"
+  DEV_URL: "xskt.gowithdev.net"
+  PROD_URL: "xosovn.net"
+
+stages:
+  - deploy
+
+deploy_dev:
+  stage: deploy
+  image: alpine:latest
+  tags:
+    - m1dev
+  script:
+    - apk add --no-cache openssh-client curl bash
+    - export AUTHOR_NAME="${GITLAB_USER_NAME:-Unknown}"
+    - export TIMESTAMP=$(TZ="Asia/Bangkok" date '+%Y-%m-%d %H:%M:%S GMT+7')
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - ssh-keyscan -p 22022 "$SERVER_MT_DEV" >> ~/.ssh/known_hosts 2>/dev/null
+    - chmod 644 ~/.ssh/known_hosts
+
+    - |
+      curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
+          \"text\": \"🚀 *${PROJECT_NAME} - DEV Deployment Started*\n📂 *Repository:* ${CI_PROJECT_PATH}\n🌿 *Branch:* ${CI_COMMIT_REF_NAME}\n👤 *Triggered by:* ${AUTHOR_NAME}\n🕒 *Time:* ${TIMESTAMP}\n🖥️ *Platform:* M1 Gitlab\n🌍 *Environment:* Development\n📝 *Commit:* \`${CI_COMMIT_TITLE}\`\",
+          \"parse_mode\": \"Markdown\"
+        }"
+    - |
+      curl -s -X POST "${VIPTALK_ALERT}" \
+        -H "Content-Type: application/json" \
+        -d "{\"message\": \"Ⓜ️ **${PROJECT_NAME} - DEV Deployment Started** 🟢\\n📂 **Repository:** ${CI_PROJECT_PATH}\\n🌿 **Branch:** ${CI_COMMIT_REF_NAME}\\n👤 **Triggered by:** ${AUTHOR_NAME}\\n🕒 **Time:** ${TIMESTAMP}\\n🖥️ **Platform:** M1 Gitlab\\n🌍 **Environment:** Development\\n📝 **Commit:** \`${CI_COMMIT_TITLE}\`\"}"
+
+    - cp "$DEV_DEPLOY_SCRIPT" ./deploy_script.sh
+    - chmod +x ./deploy_script.sh
+    - |
+      if ssh -o StrictHostKeyChecking=no -p 22022 ubuntu@$SERVER_MT_DEV 'bash -s' < ./deploy_script.sh; then
+        echo "✅ Development deployment successful"
+        
+        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
+            \"text\": \"✅ *${PROJECT_NAME} - DEV Deployment Successful* 🟢\n📂 *Repository:* ${CI_PROJECT_PATH}\n🌿 *Branch:* ${CI_COMMIT_REF_NAME}\n👤 *Deployed by:* ${AUTHOR_NAME}\n🕒 *Time:* ${TIMESTAMP}\n🖥️ *Platform:* M1 Gitlab\n📝 *Commit:* ${CI_COMMIT_TITLE}\n🔗 *Application URL:* ${DEV_URL}\",
+            \"parse_mode\": \"Markdown\",
+            \"disable_web_page_preview\": false
+          }"
+        
+        curl -s -X POST "${VIPTALK_ALERT}" \
+          -H "Content-Type: application/json" \
+          -d "{\"message\": \"✅ **${PROJECT_NAME} - DEV Deployment Successful** 🟢\\n📂 **Repository:** ${CI_PROJECT_PATH}\\n🌿 **Branch:** ${CI_COMMIT_REF_NAME}\\n👤 **Deployed by:** ${AUTHOR_NAME}\\n🕒 **Time:** ${TIMESTAMP}\\n🖥️ **Platform:** M1 Gitlab\\n📝 **Commit:** ${CI_COMMIT_TITLE}\\n🔗 **Application URL:** ${DEV_URL}\"}"
+      else
+        echo "❌ Development deployment failed"
+        
+        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
+            \"text\": \"❌ *${PROJECT_NAME} - DEV Deployment Failed* 🔴\n📂 *Repository:* ${CI_PROJECT_PATH}\n🌿 *Branch:* ${CI_COMMIT_REF_NAME}\n👤 *Triggered by:* ${AUTHOR_NAME}\n🕒 *Time:* ${TIMESTAMP}\n🖥️ *Platform:* M1 Gitlab\n📝 *Commit:* ${CI_COMMIT_TITLE}\n🔧 *Action Required:* Please check the GitLab CI logs for more details.\",
+            \"parse_mode\": \"Markdown\"
+          }"
+        
+        curl -s -X POST "${VIPTALK_ALERT}" \
+          -H "Content-Type: application/json" \
+          -d "{\"message\": \"❌ **${PROJECT_NAME} - DEV Deployment Failed** 🔴\\n📂 **Repository:** ${CI_PROJECT_PATH}\\n🌿 **Branch:** ${CI_COMMIT_REF_NAME}\\n👤 **Triggered by:** ${AUTHOR_NAME}\\n🕒 **Time:** ${TIMESTAMP}\\n🖥️ **Platform:** M1 Gitlab\\n📝 **Commit:** ${CI_COMMIT_TITLE}\\n🔧 **Action Required:** Please check the GitLab CI logs for more details.\"}"
+        
+        exit 1
+      fi
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+deploy_prod:
+  stage: deploy
+  image: alpine:latest
+  tags:
+    - m1dev
+  script:
+    - apk add --no-cache openssh-client curl bash
+    - export AUTHOR_NAME="${GITLAB_USER_NAME:-Unknown}"
+    - export TIMESTAMP=$(TZ="Asia/Bangkok" date '+%Y-%m-%d %H:%M:%S GMT+7')
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - ssh-keyscan -p 22022 "$SERVER_MT_PROD" >> ~/.ssh/known_hosts 2>/dev/null
+    - chmod 644 ~/.ssh/known_hosts
+
+    - |
+      curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
+          \"text\": \"🚀 *${PROJECT_NAME} - PRODUCTION Deployment Started*\n📂 *Repository:* ${CI_PROJECT_PATH}\n🌿 *Branch:* ${CI_COMMIT_REF_NAME}\n👤 *Triggered by:* ${AUTHOR_NAME}\n🕒 *Time:* ${TIMESTAMP}\n🖥️ *Platform:* M1 Gitlab\n🌍 *Environment:* Production\n📝 *Commit:* \`${CI_COMMIT_TITLE}\`\",
+          \"parse_mode\": \"Markdown\"
+        }"
+    - |
+      curl -s -X POST "${VIPTALK_ALERT}" \
+        -H "Content-Type: application/json" \
+        -d "{\"message\": \"Ⓜ️ **${PROJECT_NAME} - PRODUCTION Deployment Started** 🔴\\n📂 **Repository:** ${CI_PROJECT_PATH}\\n🌿 **Branch:** ${CI_COMMIT_REF_NAME}\\n👤 **Triggered by:** ${AUTHOR_NAME}\\n🕒 **Time:** ${TIMESTAMP}\\n🖥️ **Platform:** M1 Gitlab\\n🌍 **Environment:** Production\\n📝 **Commit:** \`${CI_COMMIT_TITLE}\`\"}"
+
+    - cp "$PROD_DEPLOY_SCRIPT" ./deploy_script.sh
+    - chmod +x ./deploy_script.sh
+    - |
+      if ssh -o StrictHostKeyChecking=no -p 22022 ubuntu@$SERVER_MT_PROD 'bash -s' < ./deploy_script.sh; then
+        echo "✅ Production deployment successful"
+        
+        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
+            \"text\": \"✅ *${PROJECT_NAME} - Deployment Successful* 🟢\n📂 *Repository:* ${CI_PROJECT_PATH}\n🌿 *Branch:* ${CI_COMMIT_REF_NAME}\n👤 *Deployed by:* ${AUTHOR_NAME}\n🕒 *Time:* ${TIMESTAMP}\n🖥️ *Platform:* M1 Gitlab\n📝 *Commit:* ${CI_COMMIT_TITLE}\n🔗 *Application URL:* ${PROD_URL}\",
+            \"parse_mode\": \"Markdown\",
+            \"disable_web_page_preview\": false
+          }"
+        
+        curl -s -X POST "${VIPTALK_ALERT}" \
+          -H "Content-Type: application/json" \
+          -d "{\"message\": \"✅ **${PROJECT_NAME} - Deployment Successful** 🟢\\n📂 **Repository:** ${CI_PROJECT_PATH}\\n🌿 **Branch:** ${CI_COMMIT_REF_NAME}\\n👤 **Deployed by:** ${AUTHOR_NAME}\\n🕒 **Time:** ${TIMESTAMP}\\n🖥️ **Platform:** M1 Gitlab\\n📝 **Commit:** ${CI_COMMIT_TITLE}\\n🔗 **Application URL:** ${PROD_URL}\"}"
+      else
+        echo "❌ Production deployment failed"
+        
+        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"chat_id\": \"${TELEGRAM_CHAT_ID}\",
+            \"text\": \"❌ *${PROJECT_NAME} - Deployment Failed* 🔴\n📂 *Repository:* ${CI_PROJECT_PATH}\n🌿 *Branch:* ${CI_COMMIT_REF_NAME}\n👤 *Triggered by:* ${AUTHOR_NAME}\n🕒 *Time:* ${TIMESTAMP}\n🖥️ *Platform:* M1 Gitlab\n📝 *Commit:* ${CI_COMMIT_TITLE}\n🔧 *Action Required:* Please check the GitLab CI logs for more details.\",
+            \"parse_mode\": \"Markdown\"
+          }"
+        
+        curl -s -X POST "${VIPTALK_ALERT}" \
+          -H "Content-Type: application/json" \
+          -d "{\"message\": \"❌ **${PROJECT_NAME} - Deployment Failed** 🔴\\n📂 **Repository:** ${CI_PROJECT_PATH}\\n🌿 **Branch:** ${CI_COMMIT_REF_NAME}\\n👤 **Triggered by:** ${AUTHOR_NAME}\\n🕒 **Time:** ${TIMESTAMP}\\n🖥️ **Platform:** M1 Gitlab\\n📝 **Commit:** ${CI_COMMIT_TITLE}\\n🔧 **Action Required:** Please check the GitLab CI logs for more details.\"}"
+        
+        exit 1
+      fi
+  rules:
+    - if: $CI_COMMIT_BRANCH == "production" && $CI_COMMIT_MESSAGE =~ /Merge branch 'develop'/

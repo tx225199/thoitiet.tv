@@ -1,0 +1,146 @@
+[
+    {
+        "module": "Dashboard",
+        "prefix": "dashboard",
+        "name": "Thống kê",
+        "description": "Tổng quan trang web",
+        "icon": "fa-bar-chart",
+        "class_name": "admin-settings",
+        "route": "admin.dashboard"
+    },
+    {
+        "module": "Tin tức",
+        "prefix": "News",
+        "name": "Tin tức",
+        "description": "Quản lý Tin tức",
+        "icon": "fa-film",
+        "class_name": "admin-settings",
+        "childrens": [
+            {
+                "name": "Chủ đề",
+                "route": "admin.genres.index",
+                "icon": "fa-briefcase"
+            },
+            {
+                "name": "Tin tức",
+                "route": "admin.articles.index",
+                "icon": "fa-newspaper-o"
+            },
+            {
+                "name": "Tin hẹn giờ",
+                "route": "admin.articles.scheduled",
+                "icon": "fa-calendar"
+            },
+            {
+                "name": "Tin ẩn",
+                "route": "admin.articles.hidden",
+                "icon": "fa-eye-slash"
+            }
+        ]
+    },
+    {
+        "module": "Quảng Cáo",
+        "prefix": "Quảng Cáo",
+        "name": "Quảng Cáo",
+        "description": "Quản lý quảng cáo hiển thị",
+        "icon": "fa-briefcase",
+        "class_name": "admin-settings",
+        "childrens": [
+            {
+                "name": "Danh sách",
+                "route": "admin.adv.index",
+                "icon": "fa-th-list"
+            },
+            {
+                "name": "Textlink",
+                "route": "admin.adv.text-link",
+                "icon": "fa-text-width"
+            },
+            {
+                "name": "Banner",
+                "route": "admin.adv.banner",
+                "icon": "fa-picture-o"
+            },
+            {
+                "name": "Catfish",
+                "route": "admin.adv.catfish",
+                "icon": "fa-puzzle-piece"
+            },
+            {
+                "name": "Popup",
+                "route": "admin.adv.preload",
+                "icon": "fa-laptop"
+            },
+            {
+                "name": "PopUnder",
+                "route": "admin.adv.popunder",
+                "icon": "fa-caret-square-o-up"
+            }
+        ]
+    },
+    {
+        "module": "Trang",
+        "prefix": "Trang",
+        "name": "Trang",
+        "description": "Quản lý trang",
+        "icon": "fa-sitemap",
+        "class_name": "admin-settings",
+        "childrens": [
+            {
+                "name": "Trang liên hệ",
+                "route": "admin.pages.contact.edit",
+                "icon": "fa-phone-square"
+            },
+            {
+                "name": "Trang điều khoản",
+                "route": "admin.pages.term.edit",
+                "icon": "fa-rss-square"
+            }
+        ]
+    },
+    {
+        "module": "Nhà tài trợ",
+        "prefix": "Nhà tài trợ",
+        "name": "Nhà tài trợ",
+        "description": "Quản lý Nhà tài trợ",
+        "icon": "fa-etsy",
+        "class_name": "admin-settings",
+        "childrens": [
+            {
+                "name": "Danh sách",
+                "route": "admin.brand.index",
+                "icon": "fa-th-list"
+            }
+        ]
+    },
+    {
+        "module": "Other",
+        "prefix": "Other",
+        "name": "Khác",
+        "description": "Chức năng phụ",
+        "icon": "fa-ellipsis-h",
+        "class_name": "admin-settings",
+        "childrens": [
+            {
+                "name": "Tài khoản",
+                "route": "admin.account.index",
+                "icon": "fa-shield"
+            },
+            {
+                "name": "Cài đặt chung",
+                "route": "admin.settings.index",
+                "icon": "fa-sliders"
+            },
+            {
+                "name": "Custom Css",
+                "route": "admin.settings.css.edit",
+                "icon": "fa-css3"
+            },
+            {
+                "name": "Proxy",
+                "route": "admin.proxies.index",
+                "icon": "fa-pinterest-p"
+            }
+        ]
+    }
+]
