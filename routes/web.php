@@ -10,7 +10,9 @@ use App\Http\Controllers\Admin\ProxyController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\AssetProxyController;
+use App\Http\Controllers\ClientLocationController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PathProxyController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -204,20 +206,27 @@ Route::post('/login',  [AdminController::class, 'postLogin'])->name('admin.post.
 Route::post('/logout',  [AdminController::class, 'logout'])->name('admin.logout');
 
 
+
 // =============================
 // FRONTEND MIRROR & ASSET PROXY
 // =============================
 
-// 1️⃣ ASSET PROXY: chỉ cho phép các thư mục asset frontend, bỏ qua /admin/*
-Route::get('{prefix}/{path}', [AssetProxyController::class, 'proxy'])
-    ->where([
-        // không match nếu prefix bắt đầu bằng admin
-        'prefix' => '^(?!(admin))(?:medias|images|content|static|cdn|css|js|img|fonts|assets)$',
-        'path'   => '.*',
-    ])
-    ->name('asset.proxy');
+Route::post('/home-client-location', [ClientLocationController::class, 'store'])
+    ->name('home.client-location');
 
-// 2️⃣ CATCH-ALL: HomeController cho các trang frontend (trừ admin, ajax services)
-Route::get('{any?}', [HomeController::class, 'index'])
-    ->where('any', '^(?!admin)(?!(?:ThongKeAjax|ThongKeService|Ajax)(?:/|$)).*$')
-    ->name('home.index');
+// weatherapi => /weather/...  (giữ nguyên path sau domain)
+Route::get('/weather/{path}', [PathProxyController::class, 'weatherapi'])
+    ->where('path', '.*');
+
+// thoitiet assets (giữ nguyên path)
+Route::get('/themes/{path}', [PathProxyController::class, 'thoitietThemes'])->where('path', '.*');
+Route::get('/css/{path}',    [PathProxyController::class, 'thoitietCss'])->where('path', '.*');
+Route::get('/js/{path}',     [PathProxyController::class, 'thoitietJs'])->where('path', '.*');
+Route::get('/images/{path}', [PathProxyController::class, 'thoitietImages'])->where('path', '.*');
+Route::get('/img/{path}',    [PathProxyController::class, 'thoitietImg'])->where('path', '.*');
+Route::get('/fonts/{path}',  [PathProxyController::class, 'thoitietFonts'])->where('path', '.*');
+Route::get('/assets/{path}', [PathProxyController::class, 'thoitietAssets'])->where('path', '.*');
+
+// cuối cùng mới tới page mirror
+Route::get('/{any?}', [HomeController::class, 'index'])
+    ->where('any', '.*');
