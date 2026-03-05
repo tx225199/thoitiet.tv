@@ -11,8 +11,6 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\AssetProxyController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\XosoAjaxController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -204,18 +202,6 @@ Route::get('/storage/uploads/advs/{path?}', function ($path) {
 Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
 Route::post('/login',  [AdminController::class, 'postLogin'])->name('admin.post.login');
 Route::post('/logout',  [AdminController::class, 'logout'])->name('admin.logout');
-
-// web
-Route::any('ThongKeAjax/{action?}', [XosoAjaxController::class, 'forward'])->where('action', '.*')->defaults('service', 'ThongKeAjax');
-Route::any('ThongKeService/{action?}', [XosoAjaxController::class, 'forward'])->where('action', '.*')->defaults('service', 'ThongKeService');
-Route::any('Ajax/{action?}', [XosoAjaxController::class, 'forward'])->where('action', '.*')->defaults('service', 'Ajax');
-Route::any('Keno/{action?}', [XosoAjaxController::class, 'forward'])->where('action', '.*')->defaults('service', 'Keno');
-Route::any('XSDienToan/{action?}', [XosoAjaxController::class, 'forward'])->where('action', '.*')->defaults('service', 'XSDienToan');
-Route::any('TinTuc/{action?}', [XosoAjaxController::class, 'forward'])->where('action', '.*')->defaults('service', 'TinTuc');
-
-Route::get('/muc/{slug}', [PageController::class, 'genre'])->name('genre');
-Route::get('/tin-xo-so/{slug}.html', [PageController::class, 'article'])->name('article');
-
 
 
 // =============================
