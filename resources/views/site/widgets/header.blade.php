@@ -1,7 +1,4 @@
 <header class="header-wrap header-type-12 ">
-    <form id="logout-form" action="https://thoitiet.tv/logout" method="POST" style="display: none;">
-        @csrf
-    </form>
     <div class="header-wrap-inner">
         <div class="container">
             <div class="no-margin-ads">
@@ -45,12 +42,9 @@
                                 Đơn vị:
                                 <select name="select-degree" id="select_degree">
                                     <option value="" selected="">°C</option>
-                                    <option value="f">°F</option>
                                 </select>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>

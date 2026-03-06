@@ -1,7 +1,6 @@
 <!--begin::Base Scripts -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-{{-- <script defer="" src="/themes/tinhte/public/js/apexcharts/apexcharts.min.js" type="text/javascript"></script> --}}
+<script defer="" src="/themes/tinhte/public/js/apexcharts/apexcharts.min.js" type="text/javascript"></script>
 {{-- <script defer="" src="/themes/tinhte/public/js/app.js" type="text/javascript"></script> --}}
 <script defer="" src="/themes/tinhte/public/js/app_config.js" type="text/javascript"></script>
 
@@ -376,7 +375,6 @@
             }
             $('#select_degree').on('change', function() {
                 var degree = $(this).val();
-                // Tạo cookie với tên "user" và giá trị "John Doe" có thời gian sống là 1 giờ
                 document.cookie = "unit=" + degree + "; expires=" + new Date(new Date()
                     .getTime() + 60 * 60 * 24 * 1000).toUTCString();
                 window.location.reload(true);

@@ -28,3 +28,35 @@ if (!function_exists('pickBySlug')) {
         return $svgs[$idx] ?? $svgs[0];
     }
 }
+
+if (!function_exists('vnNowClock')) {
+    function vnNowClock(?int $timestamp = null): string
+    {
+        $date = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
+
+        if ($timestamp !== null) {
+            $date->setTimestamp($timestamp);
+        }
+
+        $weekdays = [
+            0 => 'Chủ nhật',
+            1 => 'Thứ 2',
+            2 => 'Thứ 3',
+            3 => 'Thứ 4',
+            4 => 'Thứ 5',
+            5 => 'Thứ 6',
+            6 => 'Thứ 7',
+        ];
+
+        $dayOfWeek = (int) $date->format('w');
+
+        return sprintf(
+            '%s, ngày %d tháng %d, %d, %s',
+            $weekdays[$dayOfWeek] ?? '',
+            (int) $date->format('j'),
+            (int) $date->format('n'),
+            (int) $date->format('Y'),
+            $date->format('H:i:s')
+        );
+    }
+}

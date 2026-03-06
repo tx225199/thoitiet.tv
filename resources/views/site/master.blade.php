@@ -18,6 +18,8 @@
 
     <link rel="stylesheet" href="{{ url('assets/css/style02.css') }}">
 
+
+
     <script>
         var WN_Data = {
             app_url: "https://thoitiet.tv",
@@ -30,33 +32,36 @@
         };
     </script>
     <script>
-        const loadScriptsTimer = setTimeout(loadScripts, 3000);
-        const userInteractionEvents = ["scroll", "mousemove", "mouseover", "keydown", "touchmove", "touchstart"];
-        userInteractionEvents.forEach(function(event) {
-            window.addEventListener(event, triggerScriptLoader, {
-                passive: true
-            });
-        });
+        (function() {
+            const loadScriptsTimer = setTimeout(loadScripts, 3000);
+            const userInteractionEvents = ["scroll", "mousemove", "mouseover", "keydown", "touchmove", "touchstart"];
 
-        function triggerScriptLoader() {
-            loadScripts();
-            clearTimeout(loadScriptsTimer);
             userInteractionEvents.forEach(function(event) {
-                window.removeEventListener(event, triggerScriptLoader, {
+                window.addEventListener(event, triggerScriptLoader, {
                     passive: true
                 });
             });
-        }
 
-        function loadScripts() {
-            console.log('lazy script loaded');
-            document.querySelectorAll("script[data-type='lazy']").forEach(function(elem) {
-                elem.setAttribute("src", elem.getAttribute("data-src"));
-            });
-            document.querySelectorAll("iframe[data-type='lazy']").forEach(function(elem) {
-                elem.setAttribute("src", elem.getAttribute("data-src"));
-            });
-        }
+            function triggerScriptLoader() {
+                loadScripts();
+                clearTimeout(loadScriptsTimer);
+                userInteractionEvents.forEach(function(event) {
+                    window.removeEventListener(event, triggerScriptLoader, {
+                        passive: true
+                    });
+                });
+            }
+
+            function loadScripts() {
+                console.log('lazy script loaded');
+                document.querySelectorAll("script[data-type='lazy']").forEach(function(elem) {
+                    elem.setAttribute("src", elem.getAttribute("data-src"));
+                });
+                document.querySelectorAll("iframe[data-type='lazy']").forEach(function(elem) {
+                    elem.setAttribute("src", elem.getAttribute("data-src"));
+                });
+            }
+        })();
     </script>
 </head>
 
@@ -83,9 +88,12 @@
     </div>
 
     {{-- script --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
     @include('site.widgets.script')
     {{-- end script --}}
 
+    @yield('script')
 
 </body>
 

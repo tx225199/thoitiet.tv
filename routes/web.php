@@ -14,6 +14,7 @@ use App\Http\Controllers\ClientLocationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PathProxyController;
+use App\Http\Controllers\WeatherController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -209,6 +210,18 @@ Route::post('/logout',  [AdminController::class, 'logout'])->name('admin.logout'
 
 Route::get('/{slug}.html', [PageController::class, 'genre'])->name('genre');
 Route::get('/tin-tuc/{slug}.html', [PageController::class, 'article'])->name('article');
+
+// weather
+
+Route::get('/{citySlug}', [WeatherController::class, 'show'])
+    ->where('citySlug', '^(?!admin|api|ajax|asset|weather|themes|uploads|storage|login|logout).+')
+    ->name('city.show');
+
+Route::get('/{citySlug}/{pageSlug}', [WeatherController::class, 'show'])
+    ->where([
+        'citySlug' => '^(?!admin|api|ajax|asset|weather|themes|uploads|storage|login|logout).+',
+        'pageSlug' => 'theo-gio|ngay-mai|3-ngay-toi|5-ngay-toi|7-ngay-toi|10-ngay-toi|15-ngay-toi|30-ngay-toi',
+    ]);
 
 // =============================
 // FRONTEND MIRROR & ASSET PROXY

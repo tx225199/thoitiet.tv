@@ -59,69 +59,6 @@
 
 
 @section('main')
-    <div class="home_topbar">
-        <div class="container">
-
-            <div class="topbar-body">
-                <div class="row">
-                    <div class="topbar_threadhot col-lg-9 col-12">
-                        <div id="widget-ticker">
-                            <label class="f-rbs"><i class="fal fa-chart-line" aria-hidden="true"></i></label>
-                            <div id="hashtag-trending" class="timeline">
-                                <ul class="has-marquee">
-                                    <li class="hash-tag-item">
-                                        <a href="https://thoitiet.tv/ai-ve-anh-sex-a10796.html"
-                                            title="Search code, repositories, users, issues, pull requests...">
-                                            Search code, repositories, users, issues, pull requests...
-                                        </a>
-                                    </li>
-                                    <li class="hash-tag-item">
-                                        <a href="https://thoitiet.tv/no-hu-fun79-thien-duong-giai-tri-san-thuong-xanh-chin-2026-a10795.html"
-                                            title="Nổ Hũ Fun79 - Thiên đường Giải Trí Săn Thưởng Xanh Chín 2026">
-                                            Nổ Hũ Fun79 - Thiên đường Giải Trí Săn Thưởng Xanh Chín 2026
-                                        </a>
-                                    </li>
-                                    <li class="hash-tag-item">
-                                        <a href="https://thoitiet.tv/no-hu-dn88-va-nhung-bi-quyet-chinh-phuc-jackpot-dinh-cao-a10794.html"
-                                            title="Nổ Hũ dn88 Và Những Bí Quyết Chinh Phục Jackpot Đỉnh Cao">
-                                            Nổ Hũ dn88 Và Những Bí Quyết Chinh Phục Jackpot Đỉnh Cao
-                                        </a>
-                                    </li>
-                                    <li class="hash-tag-item">
-                                        <a href="https://thoitiet.tv/cup-c1-chau-au-7m-dinh-cao-bong-da-cap-clb-a10793.html"
-                                            title="Cúp C1 châu Âu 7M – Đỉnh cao bóng đá cấp CLB">
-                                            Cúp C1 châu Âu 7M – Đỉnh cao bóng đá cấp CLB
-                                        </a>
-                                    </li>
-                                    <li class="hash-tag-item">
-                                        <a href="https://thoitiet.tv/ty-le-keo-bong-da-keonhacai-cap-nhat-chuan-xac-a10792.html"
-                                            title="Tỷ lệ kèo bóng đá KEONHACAI cập nhật chuẩn xác">
-                                            Tỷ lệ kèo bóng đá KEONHACAI cập nhật chuẩn xác
-                                        </a>
-                                    </li>
-                                    <li class="hash-tag-item">
-                                        <a href="https://thoitiet.tv/luat-an-quang-rac-va-luat-den-trong-tu-sac-nguoi-choi-can-biet-a10791.html"
-                                            title="Luật Ăn – Quăng Rác Và Luật Đền Trong Tứ Sắc Người Chơi Cần Biết">
-                                            Luật Ăn – Quăng Rác Và Luật Đền Trong Tứ Sắc Người Chơi Cần Biết
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-12 d-flex align-items-center">
-                        <div class="timestemp">
-                            <i class="fa fa-calendar" aria-hidden="true"></i>
-                            <div id="clock" class="smallfont" style="margin-left:5px;">Thứ 6, ngày 6
-                                tháng 3, 2026, 01:15:30</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="clearfix"></div>
     <div class="container">
         <div class="no-margin-ads">
         </div>
