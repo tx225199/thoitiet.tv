@@ -1,30 +1,68 @@
 @extends('site.master')
 
 @section('head')
-    <title>Tin thời tiết | Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam</title>
-    <meta name="description"
-        content="Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam. Website: thoitiet.tv">
+    @php
+        $siteName = 'Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam';
+
+        $title = ($genre->name ?? 'Tin tức') . ' | ' . $siteName;
+
+        $desc =
+            $genre->meta_description ??
+            ($genre->description ??
+                'Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam.');
+
+        // ảnh OG: ưu tiên setting / genre (nếu có), fallback giống gốc
+        $ogImage = $ogImage ?? 'https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg';
+
+        $canonical = route('genre', ['slug' => $genre->slug]); // /{slug}.html
+    @endphp
+
+    <title>{{ $title }}</title>
+    <meta name="description" content="{{ $desc }}">
     <meta name="robots" content="index,follow">
     <meta name="google-site-verification" content="7pTgpatVr03nepCHbCb1GsiRKL8QQgO0cm78IWB74R8">
     <meta name="author" content="thoitiet.tv">
-    <link rel="alternate" hreflang="vi-vn" href="https://thoitiet.tv" />
-    <meta property="og:site_name" content="Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam" />
+
+    <link rel="alternate" hreflang="vi-vn" href="{{ url('/') }}" />
+    <link rel="canonical" href="{{ $canonical }}">
+
+    <meta property="og:site_name" content="{{ $siteName }}" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:locale:alternate" content="vi_VN" />
-    <meta property="og:title" content="Tin thời tiết | Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam" />
-    <meta property="og:description"
-        content="Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam. Website: thoitiet.tv" />
-    <meta property="og:image"
-        content="https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg" />
+    <meta property="og:title" content="{{ $title }}" />
+    <meta property="og:description" content="{{ $desc }}" />
+    <meta property="og:image" content="{{ $ogImage }}" />
     <meta property="og:image:height" content="315" />
     <meta property="og:image:width" content="600" />
 
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type'    => 'WebPage',
+        'description' => $desc,
+        'url' => $canonical,
+        'image' => $ogImage,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
 
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","description":"Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam. Website: thoitiet.tv","url":"Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam","image":"https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg"}</script>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Tin thời tiết","item":"https://thoitiet.tv/tin-tong-hop/tin-thoi-tiet"},{"@type":"ListItem","position":2,"name":"Ẩm thực","item":"https://thoitiet.tv/tin-tong-hop/am-thuc"},{"@type":"ListItem","position":3,"name":"Phong thuỷ","item":"https://thoitiet.tv/tin-tong-hop/phong-thuy"}]}</script>
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type'    => 'BreadcrumbList',
+        'itemListElement' => collect($genres ?? [])
+            ->take(3)
+            ->values()
+            ->map(fn($g, $i) => [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'name' => $g->name,
+                'item' => route('genre', ['slug' => $g->slug]),
+            ])
+            ->all(),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
 @endsection
-
 
 @section('main')
     <div class="section-content" bis_skin_checked="1">
@@ -188,7 +226,7 @@
                     </div>
 
                     <aside class="col col-right col-xl-3 order-xl-2 col-lg-3 order-lg-2 col-md-12 col-sm-12 col-12 w3">
-                       
+
                         {!! $boxCategorySidebarWeather !!}
 
                         <section class="section section_container box-category">
@@ -196,7 +234,6 @@
                         </section>
                         <div class="widget" style="position: sticky; top: 80px;" bis_skin_checked="1"></div>
                     </aside>
-
 
                 </div>
             </div>

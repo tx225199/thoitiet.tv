@@ -1,29 +1,60 @@
 @extends('site.master')
 
 @section('head')
-    <title>Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam</title>
-    <meta name="description"
-        content="Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam. Website: thoitiet.tv">
-    <meta name="keywords"
-        content="Dự báo thời tiết, thời tiết hôm nay, thời tiết ngày mai, thời tiết 3 ngày tới, thời tiết 7 ngày tới">
-    <meta name="robots" content="index,follow">
+    @php
+        $siteTitle = $settings['title'] ?? 'Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam';
+        $desc =
+            $settings['description'] ??
+            'Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam. Website: thoitiet.tv';
+        $keywords =
+            $settings['meta_keywords'] ??
+            'Dự báo thời tiết, thời tiết hôm nay, thời tiết ngày mai, thời tiết 3 ngày tới, thời tiết 7 ngày tới';
+
+        // canonical home
+        $canonical = url('/');
+
+        $ogImage =
+            $settings['og_image'] ??
+            'https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg';
+
+        // json-ld images: giữ giống mẫu (1 absolute + 1 relative)
+        $jsonLdImages = [
+            $ogImage,
+            $settings['og_image_2'] ?? '/uploads/images/setting/Mazart/2024/08/14/thoitietvn-1000x500-3-1723606827.png',
+        ];
+    @endphp
+
+    <title>{{ $siteTitle }}</title>
+
+    <meta name="description" content="{{ $desc }}">
+    <meta name="keywords" content="{{ $keywords }}">
+    <meta name="robots" content="{{ $settings['robots'] ?? 'index,follow' }}">
     <meta name="google-site-verification" content="7pTgpatVr03nepCHbCb1GsiRKL8QQgO0cm78IWB74R8">
-    <meta name="author" content="thoitiet.tv">
-    <link rel="canonical" href="https://thoitiet.tv">
-    <link rel="alternate" hreflang="vi-vn" href="https://thoitiet.tv">
-    <meta property="og:site_name" content="Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam">
+    <meta name="author" content="{{ $settings['author'] ?? 'thoitiet.tv' }}">
+
+    <link rel="canonical" href="{{ $canonical }}">
+    <link rel="alternate" hreflang="vi-vn" href="{{ $canonical }}">
+
+    <meta property="og:site_name" content="{{ $siteTitle }}">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="vi_VN">
     <meta property="og:locale:alternate" content="vi_VN">
-    <meta property="og:title" content="Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam">
-    <meta property="og:description"
-        content="Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam. Website: thoitiet.tv">
-    <meta property="og:image" content="https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg">
+    <meta property="og:title" content="{{ $siteTitle }}">
+    <meta property="og:description" content="{{ $desc }}">
+    <meta property="og:image" content="{{ $ogImage }}">
     <meta property="og:image:height" content="315">
     <meta property="og:image:width" content="600">
 
-
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam","description":"Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam. Website: thoitiet.tv","url":"https://thoitiet.tv","image":["https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg","/uploads/images/setting/Mazart/2024/08/14/thoitietvn-1000x500-3-1723606827.png"]}</script>
+    <script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'WebPage',
+    'name' => $siteTitle,
+    'description' => $desc,
+    'url' => $canonical,
+    'image' => $jsonLdImages,
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
 @endsection
 
 
@@ -202,7 +233,8 @@
                                     <div class="news-thumbnail">
                                         <a rel="nofollow" href="{{ $href }}" class="top-news-link">
                                             @if ($img)
-                                                <img src="{{ $img }}" class="me-3" alt="{{ $a->title }}">
+                                                <img src="{{ $img }}" class="me-3"
+                                                    alt="{{ $a->title }}">
                                             @endif
                                         </a>
                                     </div>

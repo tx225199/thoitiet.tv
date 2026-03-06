@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Genre;
+use App\Services\SiteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpClient\HttpClient;
@@ -78,8 +79,7 @@ class PageController extends Controller
             ->when(!empty($featuredIds), fn($q) => $q->whereNotIn('articles.id', $featuredIds))
             ->paginate(12);
 
-        // ===== Crawl sidebar box từ upstream =====
-        $service = new \App\Services\SiteService();
+        $service = new SiteService();
         $upstreamBase = 'https://thoitiet.tv';
 
         $upstreamUrl = 'https://thoitiet.tv/tin-tong-hop';
