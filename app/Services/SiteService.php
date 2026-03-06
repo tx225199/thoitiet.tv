@@ -53,15 +53,26 @@ class SiteService
         $upstreamBase = rtrim($upstreamBase, '/');
         $myBaseUrl    = $this->myBaseUrl;
 
+        // 1) Force riêng weather/64x64/* => full CDN path
+        $fragmentHtml = preg_replace_callback(
+            '#((?:https?:)?//[^"\')\s]+)?(/?weather/64x64/[^"\')\s]+)#i',
+            function ($m) {
+                $path = ltrim($m[2], '/');
+                return 'https://cdn.weatherapi.com/' . $path;
+            },
+            $fragmentHtml
+        );
+
+        // 2) Rewrite CDN weather về local, nhưng bỏ qua weather/64x64/*
         $fragmentHtml = preg_replace(
-            '#//cdn\.weatherapi\.com/weather/#i',
+            '#//cdn\.weatherapi\.com/weather/(?!64x64/)#i',
             $myBaseUrl . '/weather/',
             $fragmentHtml
         );
 
         $fragmentHtml = preg_replace(
-            '#https?://cdn\.weatherapi\.com/weather/#i',
-            $myBaseUrl . '/weather',
+            '#https?://cdn\.weatherapi\.com/weather/(?!64x64/)#i',
+            $myBaseUrl . '/weather/',
             $fragmentHtml
         );
 
