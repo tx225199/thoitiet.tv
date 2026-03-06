@@ -14,22 +14,23 @@
 
     <link rel="stylesheet" href="{{ url('assets/css/style.css') }}">
 
-    <link href="{{ url('/') }}/themes/tinhte/public/css/app_style.css" rel="stylesheet" type="text/css">
+    <link href="{{ url('/') }}/themes/tinhte/public/css/app_style.css?v=1.0" rel="stylesheet" type="text/css">
 
     <link rel="stylesheet" href="{{ url('assets/css/style02.css') }}">
 
-
-
     <script>
-        var WN_Data = {
-            app_url: "https://thoitiet.tv",
-            prefix_url: "",
-            full_url: "https://thoitiet.tv",
-            locale: "vi",
-            user_id: null,
-            user: null,
-            session_id: "CbNaqgkooXtJCRnAuM6VcSCWqXy7J910kGCUjFll"
-        };
+        var WN_Data = {!! json_encode(
+            [
+                'app_url' => rtrim(config('app.url'), '/'),
+                'prefix_url' => '',
+                'full_url' => rtrim(url('/'), '/'),
+                'locale' => app()->getLocale(),
+                'user_id' => auth()->id(),
+                'user' => auth()->user(),
+                'session_id' => session()->getId(),
+            ],
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+        ) !!};
     </script>
     <script>
         (function() {
@@ -65,7 +66,19 @@
     </script>
 </head>
 
-<body class="home  layout_wide">
+
+@php
+    $routeName = Route::currentRouteName();
+
+    $pageClass = match ($routeName) {
+        'contact.show' => 'page-contact page-bg-grey',
+        'genre', 'article' => 'category category-v4',
+        'city.show', 'city.show.show' => 'page page-location',
+        default => '',
+    };
+@endphp
+
+<body class="home layout_wide {{ $pageClass }}">
     <div id="app">
         <div class="no-margin-ads">
         </div>
@@ -87,11 +100,8 @@
 
     </div>
 
-    {{-- script --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-
     @include('site.widgets.script')
-    {{-- end script --}}
 
     @yield('script')
 

@@ -120,4 +120,8 @@ class PageController extends Controller
             'boxCategorySidebarWeather' => $boxCategorySidebarWeather,
         ]);
     }
+    
+    public function contact(){
+
+    }
 }

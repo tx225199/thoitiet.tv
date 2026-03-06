@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\AjaxSearchController;
 use App\Http\Controllers\ClientLocationController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PathProxyController;
@@ -207,11 +208,12 @@ Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
 Route::post('/login',  [AdminController::class, 'postLogin'])->name('admin.post.login');
 Route::post('/logout',  [AdminController::class, 'logout'])->name('admin.logout');
 
-
 Route::get('/{slug}.html', [PageController::class, 'genre'])->name('genre');
 Route::get('/tin-tuc/{slug}.html', [PageController::class, 'article'])->name('article');
 
 // weather
+Route::get('/trang/lien-he', [ContactController::class, 'show'])->name('contact.show');
+Route::post('/contact/send', [ContactController::class, 'store'])->name('contact.store');
 
 Route::get('/{citySlug}', [WeatherController::class, 'show'])
     ->where('citySlug', '^(?!admin|api|ajax|asset|weather|themes|uploads|storage|login|logout).+')
@@ -221,7 +223,7 @@ Route::get('/{citySlug}/{pageSlug}', [WeatherController::class, 'show'])
     ->where([
         'citySlug' => '^(?!admin|api|ajax|asset|weather|themes|uploads|storage|login|logout).+',
         'pageSlug' => 'theo-gio|ngay-mai|3-ngay-toi|5-ngay-toi|7-ngay-toi|10-ngay-toi|15-ngay-toi|30-ngay-toi',
-    ]);
+    ])->name('city.show.show');
 
 // =============================
 // FRONTEND MIRROR & ASSET PROXY
@@ -246,4 +248,3 @@ Route::get('/assets/{path}', [PathProxyController::class, 'thoitietAssets'])->wh
 
 // cuối cùng mới tới page mirror
 Route::get('/{any?}', [HomeController::class, 'index'])->where('any', '.*');
-

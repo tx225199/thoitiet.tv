@@ -3,7 +3,7 @@
         <div class="footer-wrap">
             <div class="footer-left">
                 <div class="footer-copyright">
-                    Copyright © 2024 by thoitiet.tv - All Rights Reserved.
+                    Copyright © {{ now()->year }} by {{ request()->getHost() }} - All Rights Reserved.
                 </div>
                 <div class="widget-content">
                 </div>
@@ -13,10 +13,9 @@
             </div>
             <div class="footer-right">
                 <ul class="menu-footer">
-                    <li><a href="/widget">Widget thời tiết</a></li>
                     <li><a href="/page/dieu-khoan-dich-vu">Điều khoản dịch vụ</a></li>
                     <li><a href="/page/chinh-sach-bao-mat">Chính sách bảo mật</a></li>
-                    <li><a href="/page/lien-he">Liên hệ</a></li>
+                    <li><a href="/trang/lien-he">Liên hệ</a></li>
                     <li><a href="/page/gioi-thieu-tac-gia">Giới thiệu về tác giả</a></li>
                 </ul>
             </div>
