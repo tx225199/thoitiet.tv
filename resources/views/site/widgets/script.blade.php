@@ -224,9 +224,11 @@
         $('.widget-search-location').on('keyup', function() {
             const searchTerm = $(this).val();
 
-            var url_ajax_search = "http://127.0.0.1:8000/ajax/search";
+            // var url_ajax_search = "http://127.0.0.1:8000/ajax/search";
 
-            console.log(url_ajax_search);
+             var url_ajax_search = window.location.protocol + "//" + window.location
+                    .hostname + "/ajax/search";
+
 
             $.ajax({
                 method: "GET",
@@ -303,10 +305,10 @@
             $('.tdb-head-search-form-input').on('keyup', function() {
                 const searchTerm = $(this).val();
 
-                // var url_ajax_search = window.location.protocol + "//" + window.location
-                //     .hostname + "/ajax/search";
+                var url_ajax_search = window.location.protocol + "//" + window.location
+                    .hostname + "/ajax/search";
 
-                var url_ajax_search = "http://127.0.0.1:8000/ajax/search";
+                // var url_ajax_search = "http://127.0.0.1:8000/ajax/search";
                 $.ajax({
                     method: "GET",
                     url: url_ajax_search,

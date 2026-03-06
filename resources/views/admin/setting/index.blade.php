@@ -151,31 +151,6 @@
                             <div class="row">
                                 <div class="col-sm-3">
                                     <div class="form-group clearfix">
-                                        <label class="control-label">Social Facebook</label>
-                                        @if (!empty($arrSettings) && isset($arrSettings['social_facebook']))
-                                            <input type="text" name="social_facebook"
-                                                value="{{ !empty($arrSettings) ? $arrSettings['social_facebook'] : '' }}">
-                                        @else
-                                            <input type="text" name="social_facebook" value="">
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="col-sm-3">
-                                    <div class="form-group clearfix">
-                                        <label class="control-label">Social Tiktok</label>
-                                        @if (!empty($arrSettings) && isset($arrSettings['social_tiktok']))
-                                            <input type="text" name="social_tiktok"
-                                                value="{{ !empty($arrSettings) ? $arrSettings['social_tiktok'] : '' }}">
-                                        @else
-                                            <input type="text" name="social_tiktok" value="">
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <div class="form-group clearfix">
                                         <label class="control-label">Logo: <strong class="red">*</strong></label>
                                         <div class="box-body post-image" style="padding: 0px">
                                             <div id="image-preview">
@@ -191,29 +166,6 @@
                                                     @endif
                                                 </label>
                                                 <input type="file" name="logo" id="image-upload">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-3">
-                                    <div class="form-group clearfix">
-                                        <label class="control-label">Logo Footer: <strong
-                                                class="red">*</strong></label>
-                                        <div class="box-body post-image" style="padding: 0px">
-                                            <div id="image-preview">
-                                                <label for="image-upload-footer" id="image-label" style="height: 200px;">
-                                                    <p>Change</p>
-                                                    @if (!empty($arrSettings) && isset($arrSettings['logo_footer']))
-                                                        <img src="{{ sourceSetting($arrSettings['logo_footer']) }}"
-                                                            alt="" id="img-review-footer" class="thumbnail"
-                                                            onerror="this.onerror=null;this.src='/system/img/no-image.png';">
-                                                    @else
-                                                        <img src="/system/img/no-image.png" id="img-review-footer"
-                                                            class="thumbnail">
-                                                    @endif
-                                                </label>
-                                                <input type="file" name="logo_footer" id="image-upload-footer">
                                             </div>
                                         </div>
                                     </div>
@@ -281,10 +233,6 @@
 
         $("#image-upload-favicon").change(function(e) {
             readURL(this, '#img-review-favicon');
-        });
-
-        $("#image-upload-footer").change(function(e) {
-            readURL(this, '#img-review-footer');
         });
     </script>
 @endsection
