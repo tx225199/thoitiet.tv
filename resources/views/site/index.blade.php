@@ -13,9 +13,7 @@
         // canonical home
         $canonical = url('/');
 
-        $ogImage =
-            $settings['og_image'] ??
-            'https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg';
+        $ogImage = isset($settings['logo']) && $settings['logo'] != '' ? sourceSetting($settings['logo']) : '/images/logo.svg';
 
         // json-ld images: giữ giống mẫu (1 absolute + 1 relative)
         $jsonLdImages = [

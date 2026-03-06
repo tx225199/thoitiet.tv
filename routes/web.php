@@ -15,6 +15,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PathProxyController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WeatherController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
@@ -207,6 +208,8 @@ Route::get('/storage/uploads/advs/{path?}', function ($path) {
 Route::get('/login', [AdminController::class, 'login'])->name('admin.login');
 Route::post('/login',  [AdminController::class, 'postLogin'])->name('admin.post.login');
 Route::post('/logout',  [AdminController::class, 'logout'])->name('admin.logout');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 Route::get('/{slug}.html', [PageController::class, 'genre'])->name('genre');
 Route::get('/tin-tuc/{slug}.html', [PageController::class, 'article'])->name('article');

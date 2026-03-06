@@ -8,7 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="icon" type="image/png"
-        href="/uploads/images/setting/Mazart/2024/12/26/thoitiettv-1735211602.png?ver=1754472522">
+        href="{{ isset($settings['favicon']) && $settings['favicon'] != '' ? sourceSetting($settings['favicon']) : '/images/logo.svg' }}">
 
     @yield('head')
 
@@ -64,13 +64,33 @@
             }
         })();
     </script>
+
+    {!! $settings['google_console'] ?? null !!}
+    {!! $settings['google_analytics'] ?? null !!}
+    {!! $settings['microsoft_clarity'] ?? null !!}
+
+    @if ($isDesktop)
+        <link href="{{ url('assets/adv/desktop-adx.css') }}?v=1.0" rel="stylesheet" type="text/css">
+    @else
+        <link href="{{ url('assets/adv/mobile-adx.css') }}?v=1.0" rel="stylesheet" type="text/css">
+    @endif
+
+    @if (isset($headerScript))
+        @foreach ($headerScript as $header)
+            {!! $header->script !!}
+        @endforeach
+    @endif
+
+    @php ($siteCss = \DB::table('settings')->where('key', 'custom_css')->first() ) @endphp
+    @if (!empty($siteCss))
+        <style id="custom-css">
+            {!! $siteCss->value !!}
+        </style>
+    @endif
+
 </head>
-
-
 @php
-    $routeName = Route::currentRouteName();
-
-    $pageClass = match ($routeName) {
+    $pageClass = match (Route::currentRouteName()) {
         'contact.show' => 'page-contact page-bg-grey',
         'genre', 'article' => 'category category-v4',
         'city.show', 'city.show.show' => 'page page-location',
@@ -78,7 +98,7 @@
     };
 @endphp
 
-<body class="home layout_wide {{ $pageClass }}">
+<body class="home layout_wide {{ $pageClass ?? '' }}">
     <div id="app">
         <div class="no-margin-ads">
         </div>

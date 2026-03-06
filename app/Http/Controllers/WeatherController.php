@@ -49,28 +49,24 @@ class WeatherController extends Controller
         };
 
         try {
-            try {
-                $res = $doRequest($target);
-            } catch (\Throwable $e) {
-                $res = $doRequest($cleanTarget);
-            }
-
-            $html = $res->getContent(false);
-
-            $headMeta = $service->extractHeadMeta($html, rtrim($this->upstream, '/'));
-            $breadcrumbHtml = $service->extractCityBreadcrumb($html, rtrim($this->upstream, '/'));
-            $tabsNavHtml = $service->extractCityTabsNav($html, rtrim($this->upstream, '/'));
-            $weatherDetail = $service->extractWeatherDetail($html, rtrim($this->upstream, '/'));
-
-            return view('site.weather', [
-                'citySlug' => $citySlug,
-                'headMeta' => $headMeta,
-                'breadcrumbHtml' => $breadcrumbHtml,
-                'tabsNavHtml' => $tabsNavHtml,
-                'weatherDetail' => $weatherDetail
-            ]);
+            $res = $doRequest($target);
         } catch (\Throwable $e) {
-            dd($e);
+            $res = $doRequest($cleanTarget);
         }
+
+        $html = $res->getContent(false);
+
+        $headMeta = $service->extractHeadMeta($html, rtrim($this->upstream, '/'));
+        $breadcrumbHtml = $service->extractCityBreadcrumb($html, rtrim($this->upstream, '/'));
+        $tabsNavHtml = $service->extractCityTabsNav($html, rtrim($this->upstream, '/'));
+        $weatherDetail = $service->extractWeatherDetail($html, rtrim($this->upstream, '/'));
+
+        return view('site.weather', [
+            'citySlug' => $citySlug,
+            'headMeta' => $headMeta,
+            'breadcrumbHtml' => $breadcrumbHtml,
+            'tabsNavHtml' => $tabsNavHtml,
+            'weatherDetail' => $weatherDetail
+        ]);
     }
 }

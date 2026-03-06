@@ -1,7 +1,4 @@
-<!--begin::Base Scripts -->
-
 <script defer="" src="/themes/tinhte/public/js/apexcharts/apexcharts.min.js" type="text/javascript"></script>
-{{-- <script defer="" src="/themes/tinhte/public/js/app.js" type="text/javascript"></script> --}}
 <script defer="" src="/themes/tinhte/public/js/app_config.js" type="text/javascript"></script>
 
 <script>

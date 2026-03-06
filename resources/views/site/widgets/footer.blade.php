@@ -13,10 +13,8 @@
             </div>
             <div class="footer-right">
                 <ul class="menu-footer">
-                    <li><a href="/page/dieu-khoan-dich-vu">Điều khoản dịch vụ</a></li>
-                    <li><a href="/page/chinh-sach-bao-mat">Chính sách bảo mật</a></li>
+                    <li><a href="/sitemap.xml">Sitemap.xml</a></li>
                     <li><a href="/trang/lien-he">Liên hệ</a></li>
-                    <li><a href="/page/gioi-thieu-tac-gia">Giới thiệu về tác giả</a></li>
                 </ul>
             </div>
         </div>

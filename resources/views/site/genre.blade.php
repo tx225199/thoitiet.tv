@@ -11,10 +11,9 @@
             ($genre->description ??
                 'Website cập nhật tình hình dự báo thời tiết từng ngày, từng giờ. Diễn biến thời tiết các tỉnh thành, quận huyện ở Việt Nam.');
 
-        // ảnh OG: ưu tiên setting / genre (nếu có), fallback giống gốc
-        $ogImage = $ogImage ?? 'https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg';
+        $ogImage = isset($settings['logo']) && $settings['logo'] != '' ? sourceSetting($settings['logo']) : '/images/logo.svg';
 
-        $canonical = route('genre', ['slug' => $genre->slug]); // /{slug}.html
+        $canonical = route('genre', ['slug' => $genre->slug]);
     @endphp
 
     <title>{{ $title }}</title>

@@ -58,10 +58,8 @@
                             <th>Ngày đăng</th>
                             <th>Hẹn giờ</th>
                             <th>Ẩn</th>
-                            <th>Tin</th>
                             <th>Người đăng</th>
                             <th>Ngày tạo</th>
-                            <th>Người cập nhật</th>
                             <th>Ngày cập nhật</th>
                             <th>Thao tác</th>
                         </tr>
@@ -116,15 +114,6 @@
                                 </td>
 
                                 <td>
-                                    @if ($article->post_type == 'auto')
-                                        <span class="label label-warning">Tự động</span>
-                                    @elseif($article->post_type == 'n8n')
-                                        <span class="label label-success">N8N</span>
-                                    @else
-                                        <span class="label label-default">Tự đăng</span>
-                                    @endif
-                                </td>
-                                <td>
                                     <div>
                                         <i class="fa fa-user text-primary"></i>
                                         {{ $article->createdBy?->name ?? '---' }}
@@ -137,15 +126,6 @@
                                         {{ optional($article->created_at)->format('d/m/Y H:i') }}
                                     </div>
                                 </td>
-
-
-                                <td>
-                                    <div class="m-t-5">
-                                        <i class="fa fa-pencil text-warning"></i>
-                                        {{ $article->updatedBy?->name ?? '---' }}
-                                    </div>
-                                </td>
-
                                 <td>
                                     <div class="text-muted" style="font-size:12px;">
                                         <i class="fa fa-clock-o"></i>

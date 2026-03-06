@@ -64,13 +64,17 @@
     @endif
 
     {{-- JSON-LD WebPage --}}
-    <script type="application/ld+json">
+    @php
+    $img = asset_media($featuredMain->avatar);
+@endphp
+
+<script type="application/ld+json">
 {!! json_encode([
   '@context' => 'https://schema.org',
   '@type' => 'WebPage',
   'description' => $desc,
-  'url' => $siteName, // giữ giống snippet gốc (họ để hơi lạ)
-  'image' => 'https://thoitiet.tv/uploads/images/setting/huyhoang/2023/09/25/csmxh-1695636686.jpg',
+  'url' => $siteName,
+  'image' => $img,
   'datePublished' => $publishedIso,
   'dateModified' => $modifiedIso,
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
