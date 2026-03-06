@@ -252,91 +252,36 @@
                 <div class="home-list-post" style="background-image: url(/themes/tinhte/public/images/bg_home.jpg)">
                     <div class="container">
                         <h2>Tin tức nổi bật</h2>
+
                         <div class="row">
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="list-top-new-items">
-                                    <div class="news-thumbnail">
-                                        <a rel="nofollow"
-                                            href="https://thoitiet.tv/thien-thach-la-gi-tim-hieu-5-thien-thach-lon-nhat-tung-roi-xuong-trai-dat-a5475.html"
-                                            class="top-news-link">
-                                            <img src="/uploads/images/2025/02/26/screenshot-2025-02-26-202736-1740576473.png"
-                                                class="me-3"
-                                                alt="Thiên thạch là gì? Tìm hiểu 5 thiên thạch lớn nhất từng rơi xuống Trái đất">
-                                        </a>
-                                    </div>
-                                    <div class="news-body">
-                                        <h5 class="mt-0 mb-1"><a rel="nofollow"
-                                                href="https://thoitiet.tv/thien-thach-la-gi-tim-hieu-5-thien-thach-lon-nhat-tung-roi-xuong-trai-dat-a5475.html">Thiên
-                                                thạch là gì? Tìm hiểu 5 thiên thạch lớn nhất từng rơi xuống Trái
-                                                đất</a></h5>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="list-top-new-items">
-                                    <div class="news-thumbnail">
-                                        <a rel="nofollow"
-                                            href="https://thoitiet.tv/mua-dong-bat-dau-tu-thang-may-tai-ca-3-mien-bac-trung-nam-a5476.html"
-                                            class="top-news-link">
-                                            <img src="/uploads/images/2025/02/26/screenshot-2025-02-26-202850-1740576548.png"
-                                                class="me-3"
-                                                alt="Mùa đông bắt đầu từ tháng mấy? (Tại cả 3 miền Bắc – Trung – Nam)">
-                                        </a>
-                                    </div>
-                                    <div class="news-body">
-                                        <h5 class="mt-0 mb-1"><a rel="nofollow"
-                                                href="https://thoitiet.tv/mua-dong-bat-dau-tu-thang-may-tai-ca-3-mien-bac-trung-nam-a5476.html">Mùa
-                                                đông bắt đầu từ tháng mấy? (Tại cả 3 miền Bắc – Trung – Nam)</a>
-                                        </h5>
+                            @foreach ($hotArticles ?? collect() as $a)
+                                @php
+                                    $href = $a->url ? $a->url : url('/' . ltrim($a->slug, '/'));
+                                    $img = asset_media($a->avatar);
+                                @endphp
+
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="list-top-new-items">
+                                        <div class="news-thumbnail">
+                                            <a rel="nofollow" href="{{ $href }}" class="top-news-link">
+                                                @if ($img)
+                                                    <img src="{{ $img }}" class="me-3" alt="{{ $a->title }}">
+                                                @endif
+                                            </a>
+                                        </div>
+
+                                        <div class="news-body">
+                                            <h5 class="mt-0 mb-1">
+                                                <a rel="nofollow" href="{{ $href }}">{{ $a->title }}</a>
+                                            </h5>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="list-top-new-items">
-                                    <div class="news-thumbnail">
-                                        <a rel="nofollow"
-                                            href="https://thoitiet.tv/mua-thu-bat-dau-tu-thang-may-dac-diem-and-nhung-dau-hieu-nhan-biet-mua-thu-da-ve-a5477.html"
-                                            class="top-news-link">
-                                            <img src="/uploads/images/2025/02/26/screenshot-2025-02-26-203015-1740576629.png"
-                                                class="me-3"
-                                                alt="Mùa thu bắt đầu từ tháng mấy? Đặc điểm &amp; những dấu hiệu nhận biết mùa thu đã về">
-                                        </a>
-                                    </div>
-                                    <div class="news-body">
-                                        <h5 class="mt-0 mb-1"><a rel="nofollow"
-                                                href="https://thoitiet.tv/mua-thu-bat-dau-tu-thang-may-dac-diem-and-nhung-dau-hieu-nhan-biet-mua-thu-da-ve-a5477.html">Mùa
-                                                thu bắt đầu từ tháng mấy? Đặc điểm &amp; những dấu hiệu nhận biết
-                                                mùa thu đã về</a></h5>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="list-top-new-items">
-                                    <div class="news-thumbnail">
-                                        <a rel="nofollow"
-                                            href="https://thoitiet.tv/mua-he-tu-thang-may-dac-diem-and-cac-dau-hieu-nhan-biet-mua-ha-dang-den-a5478.html"
-                                            class="top-news-link">
-                                            <img src="/uploads/images/2025/02/26/screenshot-2025-02-26-203109-1740576684.png"
-                                                class="me-3"
-                                                alt="Mùa hè từ tháng mấy? Đặc điểm &amp; các dấu hiệu nhận biết mùa hạ đang đến">
-                                        </a>
-                                    </div>
-                                    <div class="news-body">
-                                        <h5 class="mt-0 mb-1"><a rel="nofollow"
-                                                href="https://thoitiet.tv/mua-he-tu-thang-may-dac-diem-and-cac-dau-hieu-nhan-biet-mua-ha-dang-den-a5478.html">Mùa
-                                                hè từ tháng mấy? Đặc điểm &amp; các dấu hiệu nhận biết mùa hạ đang
-                                                đến</a></h5>
-                                    </div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
 
-
-                    <div style="background-color: #f6f5f0; display:none;">
-
-                    </div>
-
+                    <div style="background-color: #f6f5f0; display:none;"></div>
                 </div>
 
                 {{-- END TIN TUC --}}
@@ -401,8 +346,9 @@
     </div>
     <!--begin::Base Scripts -->
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-    <script defer="" src="/themes/tinhte/public/js/apexcharts/apexcharts.min.js" type="text/javascript"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script> --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    {{-- <script defer="" src="/themes/tinhte/public/js/apexcharts/apexcharts.min.js" type="text/javascript"></script> --}}
     {{-- <script defer="" src="/themes/tinhte/public/js/app.js" type="text/javascript"></script> --}}
     <script defer="" src="/themes/tinhte/public/js/app_config.js" type="text/javascript"></script>
 

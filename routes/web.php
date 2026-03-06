@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UploadController;
 use App\Http\Controllers\AjaxSearchController;
 use App\Http\Controllers\ClientLocationController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\PathProxyController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Cache;
@@ -229,5 +230,6 @@ Route::get('/fonts/{path}',  [PathProxyController::class, 'thoitietFonts'])->whe
 Route::get('/assets/{path}', [PathProxyController::class, 'thoitietAssets'])->where('path', '.*');
 
 // cuối cùng mới tới page mirror
-Route::get('/{any?}', [HomeController::class, 'index'])
-    ->where('any', '.*');
+Route::get('/{any?}', [HomeController::class, 'index'])->where('any', '.*');
+
+Route::get('/tin-tuc/{slug}.html', [PageController::class, 'article'])->name('article');

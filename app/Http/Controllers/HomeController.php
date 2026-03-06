@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Services\SiteService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpClient\HttpClient;
@@ -42,8 +43,6 @@ class HomeController extends Controller
             $res    = $client->request('GET', $url);
 
             $st = $res->getStatusCode();
-
-            // 403/407/429/5xx => throw để fallback
             if (in_array($st, [403, 407, 429], true) || $st >= 500) {
                 throw new \RuntimeException("Bad upstream/proxy status: {$st}");
             }
@@ -66,11 +65,19 @@ class HomeController extends Controller
             $lat = session('client_lat', 21.033);
             $lng = session('client_lng', 105.833);
 
+            $hotArticles = Article::query()
+                ->published()
+                ->where('highlight', 1)
+                ->orderByDesc('published_at')
+                ->limit(4)
+                ->get(['id', 'title', 'slug', 'thumbnail', 'avatar', 'url', 'published_at']);
+
             return view('site.index', [
-                'boxCurrentWeather' => $boxCurrentWeather,
-                'boxFeaturedWeather' => $boxFeaturedWeather,
-                'windyLat'           => $lat,
-                'windyLng'           => $lng,
+                'boxCurrentWeather'   => $boxCurrentWeather,
+                'boxFeaturedWeather'  => $boxFeaturedWeather,
+                'windyLat'            => $lat,
+                'windyLng'            => $lng,
+                'hotArticles'         => $hotArticles,
             ]);
         } catch (\Throwable $e) {
             dd($e);

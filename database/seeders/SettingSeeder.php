@@ -8,34 +8,29 @@ use Illuminate\Support\Facades\DB;
 
 class SettingSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $defaults = [
-            'logo'              => '',
-            'favicon'           => '',
-            'title'             => 'Xổ Số VN – Kết Quả Xổ Số 3 Miền Nhanh & Chính Xác',
-            'site_name'         => 'xosovn.net',
+            'logo'              => '/uploads/images/setting/logo.png',
+            'favicon'           => '/uploads/images/setting/favicon.png',
+            'title'             => 'Dự báo thời tiết 63 tỉnh thành Việt Nam – Chính xác theo giờ',
+            'site_name'         => 'thoitiet.tv',
             'version'           => '1.0',
-            'theme_color'       => '#d32f2f', // đỏ đậm kiểu xổ số
+            'theme_color'       => '#1e62b5', // xanh thời tiết
             'google_analytics'  => '',
             'microsoft_clarity' => '',
-            'mail'              => 'contact@xosovn.net',
-            'description'       => 'Xổ Số VN (xosovn.net) – Cập nhật kết quả xổ số 3 miền Bắc, Trung, Nam nhanh & chính xác. Tường thuật trực tiếp KQXS hôm nay, thống kê, soi cầu, đầu đuôi, lô tô, lịch mở thưởng hàng ngày.',
-            'introduce'         => "xosovn.net là cổng thông tin xổ số trực tuyến uy tín, cập nhật kết quả 3 miền Bắc – Trung – Nam liên tục 24/7.
-Người dùng có thể tra cứu nhanh kết quả theo tỉnh, theo ngày và theo kỳ quay thưởng.
-Ngoài ra còn có thống kê lô tô, soi cầu, đầu – đuôi, cầu bạch thủ, giúp bạn tham khảo hiệu quả hơn trước khi dự đoán.",
-            'copyright'         => '© 2025 xosovn.net. All rights reserved.',
-            'notification'      => '🎯 KQXS hôm nay đã có! Cập nhật nhanh kết quả tại xosovn.net',
-            'introduct_footer'  => 'xosovn.net cung cấp thông tin tham khảo từ các nguồn chính thống. Vui lòng đối chiếu với kết quả mở thưởng chính thức của các công ty xổ số kiến thiết.',
+            'mail'              => 'contact@thoitiet.tv',
+            'description'       => 'Thoitiet.tv – Cập nhật dự báo thời tiết theo giờ, theo ngày cho 63 tỉnh thành Việt Nam. Xem nhiệt độ, cảm giác như, độ ẩm, gió, tầm nhìn, UV và cảnh báo thời tiết.',
+            'introduce'         => "thoitiet.tv là trang tra cứu thời tiết nhanh và dễ dùng cho 63 tỉnh thành Việt Nam.\nBạn có thể xem dự báo theo giờ, theo ngày, chỉ số UV, gió, độ ẩm, tầm nhìn và các cảnh báo thời tiết.\nDữ liệu được cập nhật liên tục để bạn chủ động kế hoạch di chuyển và sinh hoạt.",
+            'copyright'         => '© 2026 thoitiet.tv. All rights reserved.',
+            'notification'      => '☁️ Xem dự báo thời tiết hôm nay & 7 ngày tới trên thoitiet.tv',
+            'introduct_footer'  => 'Thông tin thời tiết mang tính tham khảo. Vui lòng theo dõi thêm cảnh báo chính thức từ cơ quan khí tượng khi có thời tiết nguy hiểm.',
             'custom_css'        => '',
         ];
 
         DB::transaction(function () use ($defaults) {
             foreach ($defaults as $key => $value) {
-                Setting::firstOrCreate(
+                Setting::updateOrCreate(
                     ['key' => $key],
                     ['value' => $value]
                 );

@@ -59,9 +59,9 @@
             <!-- Logo -->
             <a href="/admin" class="logo">
                 <!-- mini logo for sidebar mini 50x50 pixels -->
-                <span class="logo-mini"><b>XS</b></span>
+                <span class="logo-mini"><b>TT</b></span>
                 <!-- logo for regular state and mobile devices -->
-                <span class="logo-lg"><b>Xổ Số</b> 24h</span>
+                <span class="logo-lg"><b>Thời Tiết</b> 24h</span>
             </a>
             <!-- Header Navbar: style can be found in header.less -->
             <nav class="navbar navbar-static-top">
