@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\ProxyController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UploadController;
-use App\Http\Controllers\AssetProxyController;
+use App\Http\Controllers\AjaxSearchController;
 use App\Http\Controllers\ClientLocationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PathProxyController;
@@ -211,8 +211,9 @@ Route::post('/logout',  [AdminController::class, 'logout'])->name('admin.logout'
 // FRONTEND MIRROR & ASSET PROXY
 // =============================
 
-Route::post('/home-client-location', [ClientLocationController::class, 'store'])
-    ->name('home.client-location');
+Route::post('/home-client-location', [ClientLocationController::class, 'store'])->name('home.client-location');
+
+Route::get('/ajax/search', [AjaxSearchController::class, 'search'])->name('ajax.search');
 
 // weatherapi => /weather/...  (giữ nguyên path sau domain)
 Route::get('/weather/{path}', [PathProxyController::class, 'weatherapi'])

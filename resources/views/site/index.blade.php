@@ -206,7 +206,8 @@
                                 @endphp
 
                                 <div>
-                                    <iframe width="100%" height="350" src="{{ $windyUrl }}" frameborder="0"></iframe>
+                                    <iframe width="100%" height="350" src="{{ $windyUrl }}"
+                                        frameborder="0"></iframe>
                                 </div>
                             </div>
 
@@ -402,7 +403,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script defer="" src="/themes/tinhte/public/js/apexcharts/apexcharts.min.js" type="text/javascript"></script>
-    <script defer="" src="/themes/tinhte/public/js/app.js" type="text/javascript"></script>
+    {{-- <script defer="" src="/themes/tinhte/public/js/app.js" type="text/javascript"></script> --}}
     <script defer="" src="/themes/tinhte/public/js/app_config.js" type="text/javascript"></script>
 
     <script>
@@ -626,9 +627,11 @@
             //search location
             $('.widget-search-location').on('keyup', function() {
                 const searchTerm = $(this).val();
-                //var url_ajax_search = window.location.protocol + "//" + window.location.hostname +":8000/ajax/search";
-                var url_ajax_search = window.location.protocol + "//" + window.location.hostname +
-                    "/ajax/search";
+
+                var url_ajax_search = "http://127.0.0.1:8000/ajax/search";
+
+                console.log(url_ajax_search);
+
                 $.ajax({
                     method: "GET",
                     url: url_ajax_search,
@@ -636,10 +639,7 @@
                         searchTerm: searchTerm,
                         type: 2
                     },
-                    beforeSend: function() {},
                     success: function(data) {
-                        //data = JSON.parse(data);
-                        // console.log(data['html']);
                         if (data['html'] != '') {
                             $('ul.widget-search-results').html(data['html']);
                             $('ul.widget-search-results').css('display', 'block');
@@ -649,13 +649,194 @@
                     }
                 });
             });
-            $(document).on('click', '.item_searching_widget', function() {
-                $('.widget-search-location').val($(this).html());
-                $('#widget_city_id').val($(this).attr('city'));
-                $('#widget_district_id').val($(this).attr('district'));
-                $('#widget_ward_id').val($(this).attr('ward'));
-                $('.widget-search-location').focus();
-                $('ul.widget-search-results').css('display', 'none');
+
+            $(document).ready(function() {
+
+                $('.menu-select-city__title').on('click', function() {
+                    if ($(this).hasClass('active')) {
+                        $(this).removeClass('active');
+                        $(this).next().removeClass('active');
+                    } else {
+                        $(this).addClass('active');
+                        $(this).next().addClass('active');
+                    }
+                });
+                $(document).mouseup(function(e) {
+                    var outer_action = $(".menu-select-city__list");
+                    // if the target of the click isn't the container nor a descendant of the container
+                    if ((!outer_action.is(e.target) && outer_action.has(e.target).length === 0)) {
+                        $('.menu-select-city__list').removeClass('active');
+
+                    }
+
+                });
+                $('.menu-select-city__list ul li').on('click', function() {
+                    var select_city_slug = $(this).attr('data-city');
+                    var link = window.location.protocol + "//" + window.location.hostname;
+                    if (window.location.hostname == '127.0.0.1') {
+                        link = window.location.protocol + "//" + window.location.hostname + ':8000';
+                    }
+
+                    if (select_city_slug != '') {
+                        link += '/' + select_city_slug;
+                    }
+                    window.location.replace(link);
+                });
+
+                if ($('.article-content_toc').length > 0) {
+
+                    if ($("#toc_left").length > 0) {
+                        window.Toc.init({
+                            $nav: $("#toc_left"),
+                            $scope: $('.article-content_toc')
+                        });
+                        $("body").scrollspy({
+                            target: "#toc_left",
+                        });
+                    }
+                    if ($("#toc_detail").length > 0) {
+                        window.Toc.init({
+                            $nav: $("#toc_detail"),
+                            $scope: $('.article-content_toc')
+                        });
+                    }
+                }
+
+                //search location
+
+                $('.tdb-head-search-form-input').on('keyup', function() {
+                    const searchTerm = $(this).val();
+
+                    // var url_ajax_search = window.location.protocol + "//" + window.location
+                    //     .hostname + "/ajax/search";
+
+                    var url_ajax_search = "http://127.0.0.1:8000/ajax/search";
+                    $.ajax({
+                        method: "GET",
+                        url: url_ajax_search,
+                        data: {
+                            searchTerm: searchTerm,
+                        },
+                        beforeSend: function() {},
+                        success: function(data) {
+                            //data = JSON.parse(data);
+                            // console.log(data['html']);
+
+                            if (data['html'] != '') {
+                                $('ul.list-search-location').html(data['html']);
+                                $('.tdb-head-search-form-input').next().css('display',
+                                    'block');
+                            } else {
+                                $('.tdb-head-search-form-input').next().css('display',
+                                    'none');
+                            }
+                        }
+                    });
+                });
+                $(document).on('click', '.item_searching_widget', function() {
+                    $('.tdb-head-search-form-input').val($(this).html());
+                    $('.tdb-head-search-form-input').attr('city', $(this).attr('city'));
+                    $('.tdb-head-search-form-input').attr('district', $(this).attr('district'));
+                    $('.tdb-head-search-form-input').next().css('display', 'none');
+                    $('.tdb-head-search-form-input').focus();
+                });
+                $(document).mouseup(function(e) {
+                    var outer_search = $(".list-search-location");
+                    // if the target of the click isn't the container nor a descendant of the container
+                    if ((!outer_search.is(e.target) && outer_search.has(e.target).length === 0)) {
+                        $('.tdb-head-search-form-input').next().css('display', 'none');
+                    }
+
+                });
+                $('.tdb-head-search-form-btn').on('click', function(e) {
+                    e.preventDefault();
+                    handleSearchResult();
+                });
+                // Sự kiện khi người dùng nhấn phím trong trường input
+                $(".tdb-head-search-form-input").keypress(function(event) {
+                    // Kiểm tra nếu phím được nhấn là "Enter"
+                    if (event.which === 13) {
+                        // Gọi hàm xử lý khi nhấn "Enter"
+                        handleSearchResult();
+                    }
+                });
+
+                function handleSearchResult() {
+                    var city = $('.tdb-head-search-form-input').attr('city');
+                    var district = $('.tdb-head-search-form-input').attr('district');
+                    //var link = window.location.protocol + "//" + window.location.hostname+ ':8000';
+                    var link = window.location.protocol + "//" + window.location.hostname;
+                    if (city != '') {
+                        link += '/' + city;
+                    }
+                    if (district != '') {
+                        link += '/' + district;
+                    }
+                    window.location.replace(link);
+                }
+                $('#select_degree').on('change', function() {
+                    var degree = $(this).val();
+                    // Tạo cookie với tên "user" và giá trị "John Doe" có thời gian sống là 1 giờ
+                    document.cookie = "unit=" + degree + "; expires=" + new Date(new Date()
+                        .getTime() + 60 * 60 * 24 * 1000).toUTCString();
+                    window.location.reload(true);
+                });
+
+                $('.showMoreContent').on('click', function() {
+                    if ($('#child-item-childrens').hasClass('active')) {
+                        $('#child-item-childrens').removeClass('active');
+                        $(this).text('Xem thêm');
+                    } else {
+                        $('#child-item-childrens').addClass('active');
+                        $(this).text('Ẩn bớt');
+                    }
+                });
+                if ($('#home_page').hasClass('home-page')) {
+                    $('.home-weather-current').addClass('loading');
+                    if (navigator.geolocation) {
+                        // Sử dụng jQuery Ajax để lấy vị trí
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                var latitude = position.coords.latitude;
+                                var longitude = position.coords.longitude;
+
+                                // Gửi thông tin vị trí về server qua Ajax
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '/home-client-location',
+                                    data: {
+                                        latitude: latitude,
+                                        longitude: longitude,
+                                    },
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                            'content'),
+                                    },
+                                    success: function(data) {
+                                        $('.home-weather-current').removeClass('loading');
+                                        if (data != '') {
+
+                                            $('.home-weather-current').html(data);
+                                        }
+                                    },
+                                    error: function(error) {
+                                        $('.home-weather-current').removeClass('loading');
+                                        console.error('Error storing location:', error
+                                            .responseJSON.message);
+                                    }
+                                });
+
+                                // Hiển thị thông tin vị trí cho người dùng
+
+                            },
+                            function(error) {
+                                $('.home-weather-current').removeClass('loading');
+                                console.log('Error getting location:', error.message);
+
+                            }
+                        );
+                    }
+                }
             });
             $(document).mouseup(function(e) {
                 var outer_search = $("ul.widget-search-results");
