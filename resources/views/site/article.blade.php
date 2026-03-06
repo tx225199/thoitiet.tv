@@ -9,23 +9,19 @@
         $keywords = $meta['keywords'] ?? ($article->meta_keywords ?? '');
 
         $canonical = $meta['canonical'] ?? route('article', ['slug' => $article->slug]);
-        $img = $meta['img'] ?? asset_media($article->avatar ?: $article->thumbnail ?? '');
 
-        // thời gian publish/modify
+        $img = asset_media($article->avatar);
+
         $publishedIso = optional($article->published_at)->toIso8601String();
         $modifiedIso = optional($article->updated_at)->toIso8601String() ?: $publishedIso;
 
-        // author (best effort)
-        $authorName = trim($article->createdBy->name ?? 'Admin');
-        $authorUrl = $article->createdBy->username ?? null;
-        $authorUrl = $authorUrl ? url('/user/' . $authorUrl) : null;
+        $authorName = 'thoitietvn.net';
+        $authorUsername = 'thoitietvn.net';
+        $authorUrl = null;
 
-        // publisher
-        $publisherName = 'thoitiet247';
-        $publisherLogo = '/uploads/images/setting/Mazart/2024/08/14/thoitietvn-1000x500-3-1723606827.png';
+        $publisherName = 'thoitietvn.net';
+        $publisherLogo = isset($settings['logo']) && $settings['logo'] != '' ? sourceSetting($settings['logo']) : '/images/logo.svg';
 
-        // amp (nếu bạn có route amp thì đổi theo route của bạn, còn không thì để comment)
-        $ampUrl = url('/amp/' . $article->slug . '.html');
     @endphp
 
     <title>{{ $title }}</title>
@@ -33,7 +29,7 @@
     <meta name="keywords" content="{{ $keywords }}">
     <meta name="robots" content="index,follow">
     <meta name="google-site-verification" content="7pTgpatVr03nepCHbCb1GsiRKL8QQgO0cm78IWB74R8">
-    <meta name="author" content="thoitiet.tv">
+    <meta name="author" content="thoitietvn.net">
 
     @if ($publishedIso)
         <meta name="pubdate" content="{{ $publishedIso }}">
@@ -46,69 +42,71 @@
     @endif
 
     <link rel="canonical" href="{{ $canonical }}" />
-    <link rel="amphtml" href="{{ $ampUrl }}" />
+
     <link rel="alternate" hreflang="vi-vn" href="{{ url('/') }}" />
 
     <meta property="og:site_name" content="{{ $siteName }}" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:locale:alternate" content="vi_VN" />
-    <meta property="og:image:alt" content="{{ $title }}" />
     <meta property="og:title" content="{{ $title }}" />
     <meta property="og:description" content="{{ $desc }}" />
     <meta property="og:url" content="{{ $canonical }}" />
+    <meta property="og:image:alt" content="{{ $title }}" />
     @if ($img)
         <meta property="og:image" content="{{ $img }}" />
         <meta property="og:image:height" content="315" />
         <meta property="og:image:width" content="600" />
     @endif
 
-    {{-- JSON-LD WebPage --}}
-    @php
-    $img = asset_media($featuredMain->avatar);
-@endphp
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $title }}">
+    <meta name="twitter:description" content="{{ $desc }}">
+    @if ($img)
+        <meta name="twitter:image" content="{{ $img }}">
+    @endif
 
-<script type="application/ld+json">
-{!! json_encode([
-  '@context' => 'https://schema.org',
-  '@type' => 'WebPage',
-  'description' => $desc,
-  'url' => $siteName,
-  'image' => $img,
-  'datePublished' => $publishedIso,
-  'dateModified' => $modifiedIso,
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
-</script>
-
-    {{-- JSON-LD NewsArticle --}}
     <script type="application/ld+json">
 {!! json_encode([
-  '@context' => 'https://schema.org',
-  '@type' => 'NewsArticle',
-  'mainEntityOfPage' => [
+    '@context' => 'https://schema.org',
     '@type' => 'WebPage',
-    '@id' => $canonical,
-  ],
-  'headline' => $title,
-  'image' => $img ? [ parse_url($img, PHP_URL_PATH) ?: $img ] : [],
-  'datePublished' => $publishedIso,
-  'dateModified' => $modifiedIso,
-  'publisher' => [
-    '@type' => 'Organization',
-    'name' => $publisherName,
-    'logo' => [
-      '@type' => 'ImageObject',
-      'url' => $publisherLogo,
-    ],
-  ],
-  'description' => $desc,
-  'author' => [
-    '@type' => 'Person',
-    'name' => $authorName,
-    'url' => $authorUrl,
-  ],
+    'name' => $title,
+    'description' => $desc,
+    'url' => $canonical,
+    'image' => $img,
+    'datePublished' => $publishedIso,
+    'dateModified' => $modifiedIso,
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
-</script>
+    </script>
+
+    <script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'NewsArticle',
+    'mainEntityOfPage' => [
+        '@type' => 'WebPage',
+        '@id' => $canonical,
+    ],
+    'headline' => $title,
+    'description' => $desc,
+    'image' => $img ? [$img] : [],
+    'datePublished' => $publishedIso,
+    'dateModified' => $modifiedIso,
+    'author' => [
+        '@type' => 'Person',
+        'name' => $authorName,
+    ] + ($authorUrl ? ['url' => $authorUrl] : []),
+    'publisher' => [
+        '@type' => 'Organization',
+        'name' => $publisherName,
+        'logo' => [
+            '@type' => 'ImageObject',
+            'url' => $publisherLogo,
+        ],
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+
     <link href="{{ url('/') }}/themes/tinhte/public/css/detail.css" rel="stylesheet" type="text/css">
 @endsection
 
@@ -227,13 +225,6 @@
                         </div>
                         <aside class="col col-right col-xl-3 order-xl-2 col-lg-3 order-lg-2 col-md-6 col-sm-6 col-12">
                         </aside>
-                    </div>
-                </div>
-            </section>
-            <section class="bottom-main">
-                <div class="container" bis_skin_checked="1">
-                    <div class="row" bis_skin_checked="1">
-                        <div class="col col-12" bis_skin_checked="1"></div>
                     </div>
                 </div>
             </section>

@@ -11,7 +11,7 @@
                         <a title="Dự báo thời tiết 63 tỉnh và thành phố chính xác nhất Việt Nam" href="/"
                             class="header-logo">
 
-                            <img alt="trang chu xo so" class="header-logo-img"
+                            <img alt="thoitietvn.net" class="header-logo-img"
                                 src="{{ isset($settings['logo']) && $settings['logo'] != '' ? sourceSetting($settings['logo']) : '/images/logo.svg' }}">
 
                         </a>
