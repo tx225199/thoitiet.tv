@@ -11,23 +11,23 @@ use Symfony\Component\HttpClient\HttpClient;
 
 class PageController extends Controller
 {
-    public function article(Request $request, $slug)
+    public function article(Request $request, string $slug)
     {
         $article = Article::with(['genre:id,slug,name', 'tags:id,name,slug'])
             ->where('slug', $slug)
             ->firstOrFail();
 
-        // Lấy genre chính để dùng trong view
         $genre = $article->genre;
 
-        // tăng view (best-effort)
+        // tăng view (best-effort) - nếu DB chưa có cột views thì ignore
         try {
             $article->increment('views');
         } catch (\Throwable $e) {
         }
 
-        // Related: ưu tiên theo tag; nếu không có thì cùng chuyên mục
+        // Related
         $tagIds = $article->tags->pluck('id');
+
         $q = Article::with('genre:id,slug,name')
             ->published()
             ->where('id', '<>', $article->id);
@@ -40,16 +40,21 @@ class PageController extends Controller
 
         $related = $q->orderByDesc('published_at')->orderByDesc('id')->take(6)->get();
 
-        // Meta
+        // Meta + URL share
+        $canonical = route('article', ['slug' => $article->slug]);
+        $shareUrl  = $canonical;
+
         $title = $article->meta_title ?: $article->title;
-        $desc  = $article->meta_description ?: Str::limit(strip_tags($article->excerpt ?: $article->content), 160);
+        $desc  = $article->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($article->excerpt ?: $article->content), 160);
         $img   = asset_media($article->avatar ?: ($article->thumbnail ?? ''));
+        $keywords = $article->meta_keywords ?? '';
 
         return view('site.article', [
-            'genre'      => $genre,
-            'article'    => $article,
-            'related'    => $related,
-            'meta'       => compact('title', 'desc', 'img'),
+            'genre'   => $genre,
+            'article' => $article,
+            'related' => $related,
+            'meta'    => compact('title', 'desc', 'img', 'canonical', 'keywords'),
+            'shareUrl' => $shareUrl,
         ]);
     }
 

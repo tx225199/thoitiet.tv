@@ -132,7 +132,7 @@
 
                                             @if ($desc)
                                                 <p class="description">
-                                                    {{ \Illuminate\Support\Str::limit(strip_tags($desc), 220) }}
+                                                    {!! \Illuminate\Support\Str::limit(strip_tags($desc), 220) !!}
                                                     <a href="{{ $href }}" title="{{ $featuredMain->title }}"></a>
                                                 </p>
                                             @endif
