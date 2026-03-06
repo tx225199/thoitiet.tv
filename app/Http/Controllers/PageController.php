@@ -3,55 +3,116 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpClient\HttpClient;
 
 class PageController extends Controller
 {
     public function article(Request $request, $slug)
     {
+        $article = Article::with(['genre:id,slug,name', 'tags:id,name,slug'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        // Lấy genre chính để dùng trong view
+        $genre = $article->genre;
+
+        // tăng view (best-effort)
         try {
-            // Lấy bài theo slug (không cần genreSlug nữa)
-            $article = Article::with(['genre:id,slug,name', 'tags:id,name,slug'])
-                ->where('slug', $slug)
-                ->firstOrFail();
-
-            // Lấy genre chính để dùng trong view
-            $genre = $article->genre;
-
-            // tăng view (best-effort)
-            try {
-                $article->increment('views');
-            } catch (\Throwable $e) {
-            }
-
-            // Related: ưu tiên theo tag; nếu không có thì cùng chuyên mục
-            $tagIds = $article->tags->pluck('id');
-            $q = Article::with('genre:id,slug,name')
-                ->published()
-                ->where('id', '<>', $article->id);
-
-            if ($tagIds->isNotEmpty()) {
-                $q->whereHas('tags', fn($qq) => $qq->whereIn('tags.id', $tagIds));
-            } elseif ($genre) {
-                $q->inAnyGenre($genre->id);
-            }
-
-            $related = $q->orderByDesc('published_at')->orderByDesc('id')->take(6)->get();
-
-            // Meta
-            $title = $article->meta_title ?: $article->title;
-            $desc  = $article->meta_description ?: Str::limit(strip_tags($article->excerpt ?: $article->content), 160);
-            $img   = asset_media($article->avatar ?: ($article->thumbnail ?? ''));
-
-            return view('site.article', [
-                'genre'      => $genre,
-                'article'    => $article,
-                'related'    => $related,
-                'meta'       => compact('title', 'desc', 'img'),
-            ]);
+            $article->increment('views');
         } catch (\Throwable $e) {
-            dd($e);
         }
+
+        // Related: ưu tiên theo tag; nếu không có thì cùng chuyên mục
+        $tagIds = $article->tags->pluck('id');
+        $q = Article::with('genre:id,slug,name')
+            ->published()
+            ->where('id', '<>', $article->id);
+
+        if ($tagIds->isNotEmpty()) {
+            $q->whereHas('tags', fn($qq) => $qq->whereIn('tags.id', $tagIds));
+        } elseif ($genre) {
+            $q->inAnyGenre($genre->id);
+        }
+
+        $related = $q->orderByDesc('published_at')->orderByDesc('id')->take(6)->get();
+
+        // Meta
+        $title = $article->meta_title ?: $article->title;
+        $desc  = $article->meta_description ?: Str::limit(strip_tags($article->excerpt ?: $article->content), 160);
+        $img   = asset_media($article->avatar ?: ($article->thumbnail ?? ''));
+
+        return view('site.article', [
+            'genre'      => $genre,
+            'article'    => $article,
+            'related'    => $related,
+            'meta'       => compact('title', 'desc', 'img'),
+        ]);
+    }
+
+    public function genre(Request $request, string $slug)
+    {
+        $genre = Genre::query()
+            ->where('hidden', 0)
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        // ===== DB articles (như trước) =====
+        $baseQuery = Article::query()
+            ->published()
+            ->whereHas('genres', fn($q) => $q->where('genres.id', $genre->id))
+            ->orderByDesc('published_at');
+
+        $featured = (clone $baseQuery)
+            ->limit(3)
+            ->get(['id', 'title', 'slug', 'excerpt', 'avatar', 'thumbnail', 'published_at']);
+
+        $featuredMain = $featured->get(0);
+        $featuredSide = $featured->slice(1, 2)->values();
+
+        $featuredIds = $featured->pluck('id')->filter()->all();
+
+        $articlesList = (clone $baseQuery)
+            ->when(!empty($featuredIds), fn($q) => $q->whereNotIn('articles.id', $featuredIds))
+            ->paginate(12);
+
+        // ===== Crawl sidebar box từ upstream =====
+        $service = new \App\Services\SiteService();
+        $upstreamBase = 'https://thoitiet.tv';
+
+        $upstreamUrl = 'https://thoitiet.tv/tin-tong-hop';
+
+        $client = HttpClient::create([
+            'verify_peer' => false,
+            'verify_host' => false,
+            'timeout'     => 12,
+            'headers'     => [
+                'User-Agent'      => $request->userAgent() ?: 'Mozilla/5.0',
+                'Accept-Language' => 'vi,en-US;q=0.9',
+                'Accept-Encoding' => 'identity',
+                'Referer'         => $upstreamBase . '/',
+            ],
+        ]);
+
+        try {
+            $res  = $client->request('GET', $upstreamUrl);
+            $html = $res->getContent(false);
+        } catch (\Throwable $e) {
+            $html = '';
+        }
+
+        $boxCategorySidebarWeather = $html
+            ? $service->extractBoxCategorySidebarWeather($html, $upstreamBase)
+            : '';
+
+        return view('site.genre', [
+            'genre'                    => $genre,
+            'featuredMain'             => $featuredMain,
+            'featuredSide'             => $featuredSide,
+            'articlesList'             => $articlesList,
+            'boxCategorySidebarWeather' => $boxCategorySidebarWeather,
+        ]);
     }
 }

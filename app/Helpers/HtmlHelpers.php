@@ -1,273 +1,30 @@
 <?php
 
-if (!function_exists('rewriteHtmlAssetsToLocalDomain')) {
-    /**
-     * Thay host (https://static.xoso.com.vn, cdn.xoso.com.vn, xoso.com.vn) -> domain hiện tại,
-     * GIỮ NGUYÊN PATH (/medias/..., /images/...) để trỏ vào route proxy.
-     *
-     * Chỉ tác động tới: src, data-src, srcset, data-srcset, href trong <link rel=image/preload> (không đụng <a>).
-     */
-    function rewriteHtmlAssetsToLocalDomain(string $html, array $hostWhitelist, ?string $localBase = null): string
+
+if (!function_exists('avgs')) {
+    function avgs()
     {
-        if ($html === '') return $html;
-        $localBase = $localBase ?: rtrim(url('/'), '/'); // ví dụ: https://domain.com
+        return [
+            // SVG 1
+            '<svg width="15" height="16" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.0007 15.9166C12.9922 15.9166 15.4173 13.4915 15.4173 10.4999C15.4173 7.50838 12.9922 5.08325 10.0007 5.08325C7.00911 5.08325 4.58398 7.50838 4.58398 10.4999C4.58398 13.4915 7.00911 15.9166 10.0007 15.9166Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M15.9493 16.4501L15.841 16.3417M15.841 4.65841L15.9493 4.55008L15.841 4.65841ZM4.04935 16.4501L4.15768 16.3417L4.04935 16.4501ZM9.99935 2.23341V2.16675V2.23341ZM9.99935 18.8334V18.7667V18.8334ZM1.73268 10.5001H1.66602H1.73268ZM18.3327 10.5001H18.266H18.3327ZM4.15768 4.65841L4.04935 4.55008L4.15768 4.65841Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>',
 
-        // 1) src / data-src / href (link ảnh/preload)
-        $html = preg_replace_callback(
-            '#\b(src|data-src|href)=("|\')((?:https?:)?//[^"\']+)("|\')#i',
-            function ($m) use ($hostWhitelist, $localBase) {
-                $attr = $m[1]; $q = $m[2]; $url = $m[3];
-                // Bỏ qua anchor <a href="...">: chỉ cho phép ở thẻ img|source|iframe|link
-                // Để đơn giản: kiểm tra ngược lại trong chuỗi trước đó 300 ký tự.
-                // Nếu trúng <a ... href= > thì trả nguyên:
-                $before = substr($m[0], -300); // không chắc chắn; an toàn hơn là DOM parse. Nhưng đủ dùng.
-                if (preg_match('#^href#i', $attr)) {
-                    // chỉ giữ nếu là <link ...>; còn <a ...> không đụng
-                    // ở đây khó phân biệt qua regex 1 bước => dùng heuristic:
-                    // nếu value có phần mở rộng ảnh (jpg|png|webp|gif|svg) thì vẫn rewrite (preload ảnh)
-                }
-
-                $rew = maybe_rewrite_to_local_domain($url, $hostWhitelist, $localBase);
-                return $attr . '=' . $q . $rew . $q;
-            },
-            $html
-        );
-
-        // 2) srcset / data-srcset
-        $html = preg_replace_callback(
-            '#\b(srcset|data-srcset)=("|\')([^"\']+)("|\')#i',
-            function ($m) use ($hostWhitelist, $localBase) {
-                $attr = $m[1]; $q = $m[2]; $val = $m[3];
-                $pieces = array_map('trim', explode(',', $val));
-                $rew = [];
-                foreach ($pieces as $piece) {
-                    $parts = preg_split('/\s+/', $piece);
-                    $url  = $parts[0] ?? '';
-                    $desc = implode(' ', array_slice($parts, 1));
-                    $url  = maybe_rewrite_to_local_domain($url, $hostWhitelist, $localBase);
-                    $rew[] = trim($url . ($desc ? (' ' . $desc) : ''));
-                }
-                return $attr . '=' . $q . implode(', ', $rew) . $q;
-            },
-            $html
-        );
-
-        return $html;
-    }
-}
-
-if (!function_exists('rewriteCssUrlsToLocalDomain')) {
-    /**
-     * Trong CSS: url(...) và @import "..." — thay host thuộc whitelist về domain hiện tại, giữ nguyên path.
-     */
-    function rewriteCssUrlsToLocalDomain(string $css, array $hostWhitelist, ?string $localBase = null): string
-    {
-        if ($css === '') return $css;
-        $localBase = $localBase ?: rtrim(url('/'), '/');
-
-        // url(...)
-        $css = preg_replace_callback(
-            '#url\(\s*(["\']?)([^)\'"]+)\1\s*\)#i',
-            function ($m) use ($hostWhitelist, $localBase) {
-                $q = $m[1]; $url = trim($m[2]);
-                if (preg_match('#^data:#i', $url)) return "url({$q}{$url}{$q})";
-                $rew = maybe_rewrite_to_local_domain($url, $hostWhitelist, $localBase);
-                return "url({$q}{$rew}{$q})";
-            },
-            $css
-        );
-
-        // @import "..."
-        $css = preg_replace_callback(
-            '#@import\s+(["\'])([^"\']+)\1#i',
-            function ($m) use ($hostWhitelist, $localBase) {
-                $q = $m[1]; $url = trim($m[2]);
-                $rew = maybe_rewrite_to_local_domain($url, $hostWhitelist, $localBase);
-                return '@import ' . $q . $rew . $q;
-            },
-            $css
-        );
-
-        return $css;
-    }
-}
-
-if (!function_exists('maybe_rewrite_to_local_domain')) {
-    /**
-     * Nếu URL thuộc host whitelist => trả về https://your-domain/{PATH+QUERY}
-     * - Hỗ trợ: https://host/path, //host/path
-     * - Giữ nguyên query, fragment nếu có.
-     * - Trả nguyên nếu không match whitelist hoặc là relative URL.
-     */
-    function maybe_rewrite_to_local_domain(string $url, array $hostWhitelist, ?string $localBase = null): string
-    {
-        $localBase = $localBase ?: rtrim(url('/'), '/');
-
-        // protocol-relative
-        if (str_starts_with($url, '//')) {
-            $url = 'https:' . $url;
-        }
-
-        if (preg_match('~^https?://([^/]+)(/[^?#]*)?(\?[^#]*)?(#.*)?$~i', $url, $m)) {
-
-            $host = strtolower($m[1]);
-            $path = $m[2] ?? '/';
-            $qry  = $m[3] ?? '';
-            $hash = $m[4] ?? '';
-
-            // Chuẩn hóa host whitelist
-            $wl = array_map(fn($h) => ltrim(strtolower($h), 'www.'), $hostWhitelist);
-            $host = ltrim($host, 'www.');
-
-            if (in_array($host, $wl, true)) {
-                return $localBase . $path . $qry . $hash;
-            }
-        }
-        return $url;
-    }
-}
-
-/* ====== (Tuỳ chọn) clearBySelectors: tái sử dụng nếu bạn cần xoá nội dung div.ads ====== */
-
-if (!function_exists('clearBySelectors')) {
-    function clearBySelectors(string $html, string|array $selectors, bool $removeNode = false): string
-    {
-        if ($html === '') return $html;
-        $selectors = is_array($selectors) ? $selectors : [$selectors];
-
-        libxml_use_internal_errors(true);
-
-        $dom = new DOMDocument('1.0', 'UTF-8');
-        $dom->loadHTML(
-            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><div id="__wrap__">'.$html.'</div>',
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-        );
-        $xpath = new DOMXPath($dom);
-
-        foreach ($selectors as $sel) {
-            $xp = css_basic_to_xpath(trim($sel));
-            if (!$xp) continue;
-
-            $nodes = $xpath->query($xp);
-            if (!$nodes || $nodes->length === 0) continue;
-
-            $bucket = [];
-            foreach ($nodes as $n) $bucket[] = $n;
-
-            foreach ($bucket as $node) {
-                if ($removeNode) {
-                    $node->parentNode?->removeChild($node);
-                } else {
-                    while ($node->firstChild) {
-                        $node->removeChild($node->firstChild);
-                    }
-                }
-            }
-        }
-
-        $out = '';
-        $wrap = $dom->getElementById('__wrap__');
-        if ($wrap) foreach ($wrap->childNodes as $child) $out .= $dom->saveHTML($child);
-
-        libxml_clear_errors();
-        return $out !== '' ? $out : $html;
-    }
-
-    function css_basic_to_xpath(string $selector): ?string
-    {
-        $selector = trim($selector);
-        if ($selector === '') return null;
-
-        $tag = '*'; $id = null; $classes = [];
-
-        if ($selector !== '' && !in_array($selector[0], ['#', '.'])) {
-            if (preg_match('/^([a-zA-Z0-9\-\_\*]+)/', $selector, $m)) {
-                $tag = $m[1];
-                $selector = substr($selector, strlen($m[1]));
-            }
-        }
-        if (preg_match('/#([a-zA-Z0-9\-\_\:]+)/', $selector, $m)) {
-            $id = $m[1];
-            $selector = str_replace($m[0], '', $selector);
-        }
-        if (preg_match_all('/\.([a-zA-Z0-9\-\_]+)/', $selector, $m)) {
-            $classes = $m[1];
-        }
-
-        $xpath = '//' . $tag;
-        $conds = [];
-        if ($id) $conds[] = "@id='{$id}'";
-        foreach ($classes as $c) {
-            $conds[] = "contains(concat(' ', normalize-space(@class), ' '), ' {$c} ')";
-        }
-        if ($conds) $xpath .= '[' . implode(' and ', $conds) . ']';
-        return $xpath;
+            // SVG 2
+            '<svg width="15" height="16" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 0.5C10.3452 0.5 10.625 0.779822 10.625 1.125V1.76697C15.7812 2.04761 20 5.77609 20 10.5C20 10.5 20 11.125 19.375 11.125C19.1891 11.125 18.9348 10.9436 18.9348 10.9436L18.9295 10.9385C18.9237 10.933 18.9134 10.9234 18.8987 10.9101C18.8693 10.8836 18.8227 10.8429 18.76 10.7927C18.6342 10.6921 18.4461 10.5551 18.2055 10.4177C17.7218 10.1412 17.0476 9.875 16.25 9.875C15.4524 9.875 14.7782 10.1412 14.2945 10.4177C14.0539 10.5551 13.8658 10.6921 13.74 10.7927C13.6773 10.8429 13.6307 10.8836 13.6013 10.9101C13.5866 10.9234 13.5763 10.933 13.5705 10.9385L13.5659 10.943C13.5659 10.943 13.3113 11.125 13.125 11.125C12.9391 11.125 12.6848 10.9436 12.6848 10.9436L12.6795 10.9385C12.6737 10.933 12.6634 10.9234 12.6487 10.9101C12.6193 10.8836 12.5727 10.8429 12.51 10.7927C12.3842 10.6921 12.1961 10.5551 11.9555 10.4177C11.604 10.2168 11.152 10.0213 10.625 9.92944V17.375H10C10.625 17.375 10.625 17.375 10.625 17.375L10.625 17.3763L10.625 17.3779L10.625 17.3818L10.6248 17.3923L10.624 17.4239C10.6232 17.4496 10.6216 17.4844 10.6185 17.527C10.6125 17.6119 10.6006 17.7292 10.5774 17.8684C10.5315 18.1437 10.4386 18.5203 10.2465 18.9045C10.0532 19.2912 9.7534 19.6968 9.292 20.0044C8.82669 20.3146 8.23437 20.5 7.5 20.5C6.76563 20.5 6.17331 20.3146 5.708 20.0044C5.2466 19.6968 4.94681 19.2912 4.75348 18.9045C4.56138 18.5203 4.46845 18.1437 4.42257 17.8684C4.39938 17.7292 4.38754 17.6119 4.38147 17.527C4.37843 17.4844 4.37681 17.4496 4.37596 17.4239L4.37516 17.3923L4.37503 17.3818L4.37501 17.3779L4.375 17.3763C4.375 17.3763 4.375 17.375 5 17.375H4.375V16.75C4.375 16.4048 4.65482 16.125 5 16.125C5.34518 16.125 5.625 16.4048 5.625 16.75V17.3723L5.62526 17.3823C5.62563 17.3932 5.62645 17.4121 5.62829 17.4379C5.63199 17.4896 5.63969 17.5676 5.65556 17.6629C5.6878 17.8563 5.75111 18.1047 5.87152 18.3455C5.9907 18.5838 6.15965 18.8032 6.40137 18.9643C6.63919 19.1229 6.98437 19.25 7.5 19.25C8.01563 19.25 8.36081 19.1229 8.59863 18.9643C8.84035 18.8032 9.00931 18.5838 9.12848 18.3455C9.24889 18.1047 9.3122 17.8563 9.34444 17.6629C9.36031 17.5676 9.36801 17.4896 9.37171 17.4379C9.37355 17.4121 9.37437 17.3932 9.37474 17.3823L9.375 17.3723V9.92944C8.84805 10.0213 8.39596 10.2168 8.04446 10.4177C7.80391 10.5551 7.61584 10.6921 7.49004 10.7927C7.42734 10.8429 7.38068 10.8836 7.3513 10.9101C7.33663 10.9234 7.32632 10.933 7.32053 10.9385L7.31541 10.9435C7.31541 10.9435 7.06103 11.125 6.875 11.125C6.68906 11.125 6.43477 10.9436 6.43477 10.9436L6.42947 10.9385C6.42368 10.933 6.41337 10.9234 6.3987 10.9101C6.36932 10.8836 6.32266 10.8429 6.25996 10.7927C6.13416 10.6921 5.94609 10.5551 5.70554 10.4177C5.22183 10.1412 4.54764 9.875 3.75 9.875C2.95236 9.875 2.27817 10.1412 1.79446 10.4177C1.55391 10.5551 1.36584 10.6921 1.24004 10.7927C1.17734 10.8429 1.13068 10.8836 1.1013 10.9101C1.08663 10.9234 1.07632 10.933 1.07053 10.9385L1.06542 10.9435C1.06542 10.9435 0.811031 11.125 0.625 11.125C0 11.125 0 10.5 0 10.5C0 5.77609 4.21876 2.04761 9.375 1.76697V1.125C9.375 0.779822 9.65482 0.5 10 0.5Z" fill="white"></path>
+            </svg>',
+        ];
     }
 }
 
 
-if (!function_exists('rewriteInlineAjaxCalls')) {
-    /**
-     * Rewrite các lời gọi AJAX trong inline script từ dạng "/Foo/Bar" → "/ajax/Foo/Bar"
-     * để tránh CORS (trỏ vào route proxy nội bộ).
-     *
-     * - $.ajax({ url: '/...' })
-     * - $.get('/...'), $.post('/...'), $.put('/...'), $.delete('/...')
-     * - fetch('/...') / window.fetch('/...')
-     * - axios.get('/...'), axios.post('/...') ...
-     *
-     * Chỉ rewrite khi URL bắt đầu bằng "/" và KHÔNG chứa "http" (tránh đè tuyệt đối).
-     */
-    function rewriteInlineAjaxCalls(string $html, string $ajaxBase = '/ajax'): string
+if (!function_exists('pickBySlug')) {
+    function pickBySlug(string $slug)
     {
-        if ($html === '') return $html;
-        $ajaxBase = rtrim($ajaxBase, '/');
-
-        // 1) $.ajax({ url: '/path' })
-        $html = preg_replace_callback(
-            '#(\$\.ajax\s*\(\s*\{[^{}]*?\burl\s*:\s*)(["\'])(\/(?!\/)[^"\']*)(\2)#si',
-            function ($m) use ($ajaxBase) {
-                $prefix = $m[1]; $q = $m[2]; $url = $m[3];
-                // Bỏ qua nếu đã là /ajax/...
-                if (str_starts_with($url, $ajaxBase . '/')) return $m[0];
-                return $prefix . $q . $ajaxBase . $url . $q;
-            },
-            $html
-        );
-
-        // 2) $.get('/path') / $.post('/path') / $.put('/path') / $.delete('/path')
-        $html = preg_replace_callback(
-            '#(\$\.(get|post|put|delete)\s*\(\s*)(["\'])(\/(?!\/)[^"\']*)(\3)#si',
-            function ($m) use ($ajaxBase) {
-                $prefix = $m[1]; $q = $m[3]; $url = $m[4];
-                if (str_starts_with($url, $ajaxBase . '/')) return $m[0];
-                return $prefix . $q . $ajaxBase . $url . $q;
-            },
-            $html
-        );
-
-        // 3) fetch('/path') / window.fetch('/path')
-        $html = preg_replace_callback(
-            '#(\b(?:window\.)?fetch\s*\(\s*)(["\'])(\/(?!\/)[^"\']*)(\2)#si',
-            function ($m) use ($ajaxBase) {
-                $prefix = $m[1]; $q = $m[2]; $url = $m[3];
-                if (str_starts_with($url, $ajaxBase . '/')) return $m[0];
-                return $prefix . $q . $ajaxBase . $url . $q;
-            },
-            $html
-        );
-
-        // 4) axios.get('/path') / axios.post('/path') / ...
-        $html = preg_replace_callback(
-            '#(\baxios\.(get|post|put|patch|delete)\s*\(\s*)(["\'])(\/(?!\/)[^"\']*)(\3)#si',
-            function ($m) use ($ajaxBase) {
-                $prefix = $m[1]; $q = $m[3]; $url = $m[4];
-                if (str_starts_with($url, $ajaxBase . '/')) return $m[0];
-                return $prefix . $q . $ajaxBase . $url . $q;
-            },
-            $html
-        );
-
-        return $html;
+        $svgs = avgs();
+        $idx = abs(crc32($slug)) % max(count($svgs), 1);
+        return $svgs[$idx] ?? $svgs[0];
     }
 }

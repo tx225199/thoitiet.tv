@@ -207,6 +207,8 @@ Route::post('/login',  [AdminController::class, 'postLogin'])->name('admin.post.
 Route::post('/logout',  [AdminController::class, 'logout'])->name('admin.logout');
 
 
+Route::get('/{slug}.html', [PageController::class, 'genre'])->name('genre');
+Route::get('/tin-tuc/{slug}.html', [PageController::class, 'article'])->name('article');
 
 // =============================
 // FRONTEND MIRROR & ASSET PROXY
@@ -232,4 +234,3 @@ Route::get('/assets/{path}', [PathProxyController::class, 'thoitietAssets'])->wh
 // cuối cùng mới tới page mirror
 Route::get('/{any?}', [HomeController::class, 'index'])->where('any', '.*');
 
-Route::get('/tin-tuc/{slug}.html', [PageController::class, 'article'])->name('article');

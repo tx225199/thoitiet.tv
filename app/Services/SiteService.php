@@ -90,4 +90,21 @@ class SiteService
 
         return $fragmentHtml;
     }
+
+    public function extractBoxCategorySidebarWeather(string $html, string $upstreamBase): string
+    {
+        $crawler = new Crawler($html);
+
+        // box sidebar ở trang category/genre
+        $node = $crawler->filter('section.section-current.category-weather-current');
+
+        if ($node->count() === 0) {
+            return '';
+        }
+
+        $boxHtml = $this->outerHTML($node->getNode(0));
+
+        // rewrite link/assets để chạy trên domain mình
+        return $this->rewriteFragmentUrlsKeepPath($boxHtml, $upstreamBase);
+    }
 }
